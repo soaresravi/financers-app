@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#221377',
+    color: '#0f248d',
     marginBottom: 8,
   },
 
@@ -259,18 +259,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#221377',
+    color: '#0f248d',
     marginBottom: 8,
   },
 
   input: {
-    backgroundColor: '#bab9f7',
+    backgroundColor: '#b9c4f7',
     borderRadius: 15,
     paddingHorizontal: 15,
     paddingVertical: 12,
     fontSize: 16,
     borderWidth: 2,
-    borderColor: '#adaaff',
+    borderColor: '#aab3ff',
   },
 
   inputError: {
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    backgroundColor: '#4D48C8',
+    backgroundColor: '#0f248d',
     borderRadius: 15,
     paddingVertical: 15,
     alignItems: 'center',
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
   },
 
   buttonDisabled: {
-    backgroundColor: '#8581FF',
+    backgroundColor: '#4b5ff5',
     opacity: 0.7,
   },
 
@@ -329,12 +329,12 @@ const styles = StyleSheet.create({
   },
 
   loginText: {
-    color: '#5f5be9',
+    color: '#4b5ff5',
     fontSize: 17,
   },
 
   loginLinkText: {
-    color: '#4945cc',
+    color: '#0f248d',
     fontSize: 16,
     fontWeight: 'bold',
   },
