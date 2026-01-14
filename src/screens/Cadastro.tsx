@@ -1,8 +1,11 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { authService } from '../services/firebase';
+import { SignUpData } from '../types/auth';
 
 type RootStackParamList = {
   Login: undefined;
@@ -16,20 +19,323 @@ export default function Cadastro() {
  
   const navigation = useNavigation<NavigationProps>();
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [ showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [formData, setFormData] = useState<SignUpData>({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+
+  const [errors, setErrors] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+
+  const validateField = (field: keyof SignUpData, value: string) => {
+
+    let error = '';
+
+    switch (field) {
+      
+      case 'name':
+        if (!value.trim()) error = 'Nome é obrigatório';
+        else if (value.length < 2) error = 'Nome muito curto';
+        break;
+      
+      case 'email':
+        if (!value.trim()) error = 'Email é obrigatório';
+        else if (!/\S+@\S+\.\S+/.test(value)) error = 'Email inválido';
+        break;
+
+      case 'password':
+        if (!value) error = 'Senha é obrigatória';
+        else if (value.length < 6) error = 'Mínimo 6 caracteres';
+        break;
+      
+      case 'confirmPassword':
+        if (!value) error = 'Confirme sua senha';
+        else if (value !== formData.password) error = 'Senhas não conferem';
+        break;
+    }
+
+    setErrors(prev => ({ ...prev, [field]: error }));
+    return error === '';
+  };
+
+  const handleChange = (field: keyof SignUpData, value: string) => {
+    
+    setFormData(prev => ({ ...prev, [field]: value }));
+
+    if (value.trim()) {
+      validateField(field, value);
+    } else {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  
+  };
+
+  const validateForm = (): boolean => {
+
+    const validations = [
+      validateField('name', formData.name),
+      validateField('email', formData.email),
+      validateField('password', formData.password),
+      validateField('confirmPassword', formData.confirmPassword)
+    ];
+
+    return validations.every(v => v === true);
+  
+  };
+
+  const handleSignUp = async () => {
+    
+    if (!validateForm()) {
+      Alert.alert('Atenção!', 'Preencha todos os campos corretamente');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      
+      await authService.signUp(formData.email, formData.password, formData.name);
+      Alert.alert('Sucesso!', 'Conta criada com sucesso!', [{ text: 'OK', onPress: () => navigation.navigate('Home') }]);
+    
+    } catch (error: any) {
+      Alert.alert('Erro', error.message);
+   
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
    
-   <View>
+   <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+
+    <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       
-      <Text>Cadastro</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}> Criar conta </Text>
+      </View>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-        <Text>Cadastrar</Text>
-      </TouchableOpacity>
+      <View style={styles.form}>
+        <View style={styles.inputGroup}>
+          
+          <Text style={styles.label}> Nome completo </Text>
+         
+          <TextInput style={[ styles.input, errors.name ? styles.inputError : null ]} placeholder='Digite seu nome' placeholderTextColor='#565475'
+          value={formData.name} onChangeText={(text) => handleChange('name', text)} onBlur={() => validateField('name', formData.name)} />
+          
+          {errors.name ?
+              <Text style={styles.errorText}> {errors.name} </Text>
+          : null }
 
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text>Voltar</Text>
-      </TouchableOpacity>
+        </View>
 
-    </View>
+        <View style={styles.inputGroup}>
+         
+          <Text style={styles.label}> Email </Text>
+         
+          <TextInput style={[ styles.input, errors.email ? styles.inputError : null ]} placeholder='seu@email.com' placeholderTextColor='#565475'
+          value={formData.email} onChangeText={(text) => handleChange('email', text)} onBlur={() => validateField('email', formData.email)}
+          keyboardType='email-address' autoCapitalize='none' />
+
+          {errors.email ?
+              <Text style={styles.errorText}> {errors.email} </Text>
+          : null }
+        
+        </View>
+
+        <View style={styles.inputGroup}>
+
+          <Text style={styles.label}> Senha </Text>
+
+          <View style={styles.passwordContainer}>
+            
+            <TextInput style={[ styles.input, styles.passwordInput, errors.password ? styles.inputError : null ]} placeholder='Mínimo 6 caracteres'
+            placeholderTextColor='#565475' value={formData.password} onChangeText={(text) => handleChange('password', text)} onBlur={() =>
+            validateField('password', formData.password)} secureTextEntry={!showPassword} />
+
+            <TouchableOpacity style={styles.eyeButton} onPress={() => setShowPassword(!showPassword)}>
+              <Text style={styles.eyeText}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+            </TouchableOpacity>
+
+          </View>
+
+          {errors.password ?
+              <Text style={styles.errorText}> {errors.password} </Text>
+          : null }
+
+        </View>
+
+        <View style={styles.inputGroup}>
+          
+          <Text style={styles.label}> Confirmar senha </Text>
+          
+          <View style={styles.passwordContainer}>
+            
+            <TextInput style={[ styles.input, styles.passwordInput, errors.confirmPassword ? styles.inputError : null ]} placeholder='Digite
+            novamente' placeholderTextColor='#565475' value={formData.confirmPassword} onChangeText={(text) => handleChange('confirmPassword', text)}
+            secureTextEntry={!showConfirmPassword} />
+
+            <TouchableOpacity style={styles.eyeButton} onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+              <Text style={styles.eyeText}>{showConfirmPassword ? '👁️' : '👁️‍🗨️'}</Text>
+            </TouchableOpacity>
+            
+          </View>
+
+          {errors.confirmPassword ?
+              <Text style={styles.errorText}> {errors.confirmPassword} </Text>
+          : null }
+
+        </View>
+
+        <TouchableOpacity style={[ styles.button, isLoading ? styles.buttonDisabled : null ]} onPress={handleSignUp} disabled={isLoading}>
+        
+          {isLoading ? (
+            <ActivityIndicator color='#FFF' />
+          ) : (
+            <Text style={styles.buttonText}> Cadastrar </Text>
+          )}
+          
+        </TouchableOpacity>
+
+        <View style={styles.loginLink}>
+        
+          <Text style={styles.loginText}> Já tem uma conta? </Text>
+        
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.loginLinkText}>Faça login</Text>
+          </TouchableOpacity>
+
+        </View>
+      </View>
+    </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+ 
+  container: {
+    flex: 1,
+    backgroundColor: '#dadafa',
+  },
+
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 30,
+  },
+
+  header: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#221377',
+    marginBottom: 8,
+  },
+
+  form: {
+    width: '100%',
+  },
+
+  inputGroup: {
+    marginBottom: 20,
+  },
+
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#221377',
+    marginBottom: 8,
+  },
+
+  input: {
+    backgroundColor: '#bab9f7',
+    borderRadius: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    fontSize: 16,
+    borderWidth: 2,
+    borderColor: '#adaaff',
+  },
+
+  inputError: {
+    borderColor: '#FF6B6B',
+    backgroundColor: '#FFE6E6',
+  },
+
+  errorText: {
+    color: '#FF6B6B',
+    fontSize: 14,
+    marginTop: 4,
+    marginLeft: 5,
+  },
+
+  passwordContainer: {
+    position: 'relative',
+  },
+
+  passwordInput: {
+    paddingRight: 50,
+  },
+
+  eyeButton: {
+    position: 'absolute',
+    right: 15,
+    top: 12,
+  },
+
+  eyeText: {
+    fontSize: 20,
+  },
+
+  button: {
+    backgroundColor: '#4D48C8',
+    borderRadius: 15,
+    paddingVertical: 15,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+
+  buttonDisabled: {
+    backgroundColor: '#8581FF',
+    opacity: 0.7,
+  },
+
+  buttonText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  
+  loginLink: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 30,
+  },
+
+  loginText: {
+    color: '#5f5be9',
+    fontSize: 17,
+  },
+
+  loginLinkText: {
+    color: '#4945cc',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+})
