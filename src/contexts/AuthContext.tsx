@@ -17,7 +17,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
     const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsloading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         checkUserSession();
@@ -37,13 +37,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Erro ao verificar sessão:', error);
    
         } finally {
-            setIsloading(false);
+            setIsLoading(false);
         }
     };
 
     const signIn = async (email: string, password: string) => {
 
-        setIsloading(true);
+        setIsLoading(true);
 
         try {
 
@@ -58,13 +58,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(userData);
 
         } finally {
-            setIsloading(false);
+            setIsLoading(false);
         }
     };
 
     const signUp = async (email: string, password: string, name: string) => {
 
-        setIsloading(true);
+        setIsLoading(true);
 
         try {
 
@@ -80,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(userData);
             
         } finally {
-            setIsloading(false);
+            setIsLoading(false);
         }
     };
 
@@ -92,4 +92,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return (
         <AuthContext.Provider value={{ user, isLoading, signIn, signUp, signOut }}> { children } </AuthContext.Provider>
     );
-};
+}

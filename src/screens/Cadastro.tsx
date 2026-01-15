@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert, KeyboardAvo
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { authService } from '../services/firebase';
+import { useAuth } from '../contexts/AuthContext';
 import { SignUpData } from '../types/auth';
 
 type RootStackParamList = {
@@ -19,7 +19,7 @@ export default function Cadastro() {
  
   const navigation = useNavigation<NavigationProps>();
 
-  const [isLoading, setIsLoading] = useState(false);
+  const { signUp, isLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [ showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -99,20 +99,17 @@ export default function Cadastro() {
       Alert.alert('Atenção!', 'Preencha todos os campos corretamente');
       return;
     }
-
-    setIsLoading(true);
-
+    
     try {
       
-      await authService.signUp(formData.email, formData.password, formData.name);
-      Alert.alert('Sucesso!', 'Conta criada com sucesso!', [{ text: 'OK', onPress: () => navigation.navigate('Home') }]);
-    
+      await signUp(formData.email, formData.password, formData.name);
+      Alert.alert('Sucesso!', 'Conta criada! Faça login.');
+      navigation.navigate('Login');
+   
     } catch (error: any) {
       Alert.alert('Erro', error.message);
-   
-    } finally {
-      setIsLoading(false);
     }
+    
   };
 
   return (
