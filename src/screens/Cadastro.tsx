@@ -37,7 +37,7 @@ export default function Cadastro() {
     confirmPassword: ''
   });
 
-  const validateField = (field: keyof SignUpData, value: string) => {
+  const validateField = (field: keyof SignUpData, value: string) => { //validaçao de campos
 
     let error = '';
 
@@ -68,7 +68,7 @@ export default function Cadastro() {
     return error === '';
   };
 
-  const handleChange = (field: keyof SignUpData, value: string) => {
+  const handleChange = (field: keyof SignUpData, value: string) => { //valida em tempo real
     
     setFormData(prev => ({ ...prev, [field]: value }));
 
@@ -80,7 +80,7 @@ export default function Cadastro() {
   
   };
 
-  const validateForm = (): boolean => {
+  const validateForm = (): boolean => { //valida tudo de novo quando o user clica em criar conta
 
     const validations = [
       validateField('name', formData.name),

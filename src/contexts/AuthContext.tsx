@@ -10,20 +10,20 @@ interface AuthContextData {
     signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextData>({} as AuthContextData);
+const AuthContext = createContext<AuthContextData>({} as AuthContextData); //cria um contexto q centraliza tudo disponivel globalmente
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => useContext(AuthContext); //hook personalizado p qualquer componente importar de forma facil
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => { //provedor do estado de autenticação
 
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
+    useEffect(() => { //roda 1 vez e ao abrir o programa
         checkUserSession();
     }, []);
 
-    const checkUserSession = async () => {
+    const checkUserSession = async () => { //verifica se tem uma sessao salva localmente e restaura o usuario automaticamente
 
         try {
 
@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const signIn = async (email: string, password: string) => {
+    const signIn = async (email: string, password: string) => { //login
 
         setIsLoading(true);
 
@@ -62,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const signUp = async (email: string, password: string, name: string) => {
+    const signUp = async (email: string, password: string, name: string) => { //cadastro
 
         setIsLoading(true);
 

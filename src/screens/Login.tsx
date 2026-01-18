@@ -33,7 +33,7 @@ export default function Login() {
     password: ''
   });
 
-  const validateField = (field: keyof SignInData, value: string) => {
+  const validateField = (field: keyof SignInData, value: string) => { //verifica se um cmapo esta valido
 
     let error = '';
 
@@ -56,19 +56,19 @@ export default function Login() {
   
   };
 
-  const handleChange = (field: keyof SignInData, value: string) => {
+  const handleChange = (field: keyof SignInData, value: string) => { //gerencia as mudanças em tempo real
     
     setFormdata(prev => ({ ...prev, [field]: value }));
 
-    if (value.trim()) {
+    if (value.trim()) { //se tem conteudo valida
       validateField(field, value);
-    } else {
+    } else { //senao remove qualquer erro anterior (feedback imediato: erro some assim q usuario começa a digitar)
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   
   };
 
-  const validateForm = (): boolean => {
+  const validateForm = (): boolean => { //valida todos os campos antes do envio
 
     const validations = [
       validateField('email', formData.email),
@@ -171,6 +171,7 @@ export default function Login() {
     </KeyboardAvoidingView>
   );
 }
+
 const styles = StyleSheet.create({
  
   container: {

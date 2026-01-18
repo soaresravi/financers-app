@@ -18,7 +18,7 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator();
 
-function AppNavigator() {
+function AppNavigator() { //verifica se esta carregando os dados do usuario
 
   const { user, isLoading } = useAuth();
 
@@ -30,11 +30,11 @@ function AppNavigator() {
     
     <Stack.Navigator screenOptions={{ headerShown: false }}>
      
-      { user ? (
+      { user ? ( //se ta autenticado vai p tela inicial
         
         <Stack.Screen name="Home" component={Home} />
     
-      ) : (
+      ) : ( //se nn esta vai p login/cadastro
        
         <>
        

@@ -1,8 +1,10 @@
 import { initializeApp } from "firebase/app";
 
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, AuthError, UserCredential, User } from 'firebase/auth'
+
 import { getFirestore } from "firebase/firestore";
 import { firebaseConfig } from "../services/firebaseConfig";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const app = initializeApp(firebaseConfig);
@@ -10,13 +12,13 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app)
 export const db = getFirestore(app);
 
-export const authService = { //funções de autenticação
+export const authService = { //funções de autenticação. agrupa todas as op num unico objeto
 
     async signUp(email: string, password: string, name: string): Promise<UserCredential> { //cadastro com email e senha
 
         try {
 
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password); //cria no firebase auth
             await this.saveUserData(userCredential.user.uid, email, name); //salva info adicionais no firestore
             return userCredential;
 
@@ -65,7 +67,7 @@ export const authService = { //funções de autenticação
         });
     },
 
-    async persistUserSession(user: User) { //persistir sessao
+    async persistUserSession(user: User) { //persistir sessao (salva dados basicos no async storage p manter e permite recuperar msm fechando o app)
         
         const userData = {
             uid: user.uid,
