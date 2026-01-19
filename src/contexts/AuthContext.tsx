@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext} from 'react';
 import { User } from '../types/auth'; 
-import { authService } from '../services/firebase';
+import { authService, db } from '../services/firebase';
+import { getDoc, doc} from 'firebase/firestore';
 
 interface AuthContextData {
     user: User | null;
@@ -23,44 +24,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         checkUserSession();
     }, []);
 
-    const checkUserSession = async () => { //verifica se tem uma sessao salva localmente e restaura o usuario automaticamente
+const checkUserSession = async () => {
+  try {
+    const storedUser = await authService.getCurrentUser();
 
-        try {
+    if (storedUser) {
+      // Busca dados atualizados do Firestore
+      const userDoc = await getDoc(doc(db, 'users', storedUser.uid));
+      const userData = userDoc.data();
+      
+      const userDataComplete = {
+        uid: storedUser.uid,
+        email: storedUser.email,
+        name: userData?.name || "",
+        initialSetup: userData?.initialSetup || false
+      };
+      
+      setUser(userDataComplete);
+    }
+  } catch (error) {
+    console.error('Erro ao verificar sessão:', error);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-            const storedUser = await authService.getCurrentUser();
+const signIn = async (email: string, password: string) => {
+  setIsLoading(true);
 
-            if (storedUser) {
-                setUser(storedUser);
-            }
+  try {
+    const userCredential = await authService.signIn(email, password);
 
-        } catch (error) {
-            console.error('Erro ao verificar sessão:', error);
-   
-        } finally {
-            setIsLoading(false);
-        }
+    const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
+    const userData = userDoc.data();
+    
+    // CORREÇÃO AQUI: use userDataComplete, não userData
+    const userDataComplete = {
+      uid: userCredential.user.uid,
+      email: userCredential.user.email,
+      name: userData?.name || "", // ← PEGA DO FIRESTORE
+      initialSetup: userData?.initialSetup || false
     };
 
-    const signIn = async (email: string, password: string) => { //login
+    await authService.persistUserSession(userCredential.user);
+    setUser(userDataComplete); // ← AQUI: userDataComplete, não userData
 
-        setIsLoading(true);
-
-        try {
-
-            const userCredential = await authService.signIn(email, password);
-           
-            const userData = {
-                uid: userCredential.user.uid,
-                email: userCredential.user.email,
-            };
-
-            await authService.persistUserSession(userCredential.user);
-            setUser(userData);
-
-        } finally {
-            setIsLoading(false);
-        }
-    };
+  } finally {
+    setIsLoading(false);
+  }
+};
 
     const signUp = async (email: string, password: string, name: string) => { //cadastro
 
