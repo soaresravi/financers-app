@@ -9,11 +9,13 @@ import Cadastro from './src/screens/Cadastro';
 import Home from './src/screens/Home';
 
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import SetupInitial from './src/screens/SetupInitial';
 
 export type RootStackParamList = {
   Login: undefined;
   Cadastro: undefined;
   Home: undefined;
+  SetupInitial: undefined;
 };
 
 const Stack = createNativeStackNavigator();
@@ -31,8 +33,13 @@ function AppNavigator() { //verifica se esta carregando os dados do usuario
     <Stack.Navigator screenOptions={{ headerShown: false }}>
      
       { user ? ( //se ta autenticado vai p tela inicial
+
+      <>
         
         <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="SetupInitial" component={SetupInitial} />
+
+      </>  
     
       ) : ( //se nn esta vai p login/cadastro
        
@@ -64,4 +71,3 @@ export default function App() {
   );
   
 }
-

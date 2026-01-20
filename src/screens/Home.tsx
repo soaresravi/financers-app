@@ -7,7 +7,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../contexts/AuthContext'; 
 import { db } from '../services/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { useDateNavigation } from '../hooks/UseDateNavigation';
+import { useDateNavigation } from '../hooks/useDateNavigation';
 
 type RootStackParamList = {
   Home: undefined;
@@ -28,6 +28,7 @@ export default function Home() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [initialSetup, setInitialSetup] = useState(false);
+  const [dadosFinanceiros, setDadosFinanceiros] = useState<any>(null);
 
   const {
     formattedMonthYear,
@@ -62,6 +63,33 @@ export default function Home() {
   
   };
 
+  useEffect(() => {
+   
+    if (user?.uid && initialSetup) {
+      carregarDadosFinanceiros();
+    }
+
+  }, [user?.uid, initialSetup]);
+
+  const carregarDadosFinanceiros = async () => {
+   
+    if (!user?.uid) return;
+    
+    try {
+     
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+     
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        setDadosFinanceiros(data);
+      }
+
+    } catch (error) {
+      console.error('Erro ao carregar dados financeiros:', error);
+    }
+
+  };
+
   const handleCompleteSetup = async () => {
 
     if (!user?.uid) return;
@@ -86,31 +114,35 @@ export default function Home() {
   };
 
   if (isLoading) {
+   
     return (
+      
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#4D48C8" />
         <Text style={styles.loadingText}>Carregando...</Text>
       </View>
+
     );
+
   }
 
   if (!initialSetup) {
     
     return (
        
-       <View style={styles.container}>
+      <View style={styles.container}>
+        
         <ScrollView contentContainerStyle={styles.scrollContent}>
           
           <View style={styles.header}>
             <Text style={styles.title}>👋 Bem-vindo, {user?.name || 'Usuário'}!</Text>
-            <Text style={styles.subtitle}>Vamos configurar suas finanças</Text>
+            <Text style={styles.subtitle}>Vamos configurar suas finanças!!</Text>
           </View>
 
           <View style={styles.setupCard}>
             
             <Text style={styles.setupTitle}>Setup Inicial</Text>
-            <Text style={styles.setupDescription}> Para começar, precisamos saber sobre sua renda mensal. Isso nos ajudará a calcular seus limites
-            e metas. </Text>
+            <Text style={styles.setupDescription}>Para começar, precisamos saber sobre sua renda mensal e principais despesas. Você poderá alterar depois.</Text>
 
             <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('SetupInitial')}>
               <Text style={styles.primaryButtonText}> Começar configuração </Text>
@@ -123,8 +155,8 @@ export default function Home() {
           </View>
 
           <View style={styles.infoBox}>
-            <Text style={styles.infoText}> Dica </Text>
-            <Text style={styles.infoText}> Configurar sua renda ajuda o app a mostrar quanto você pode gastar e quanto deve guardar cada mês. </Text>
+            <Text style={[styles.infoText, { fontWeight: 'bold', color: 'white' }]}>Dica </Text>
+            <Text style={styles.infoText}>Configurar sua renda ajuda o app a mostrar quanto você pode gastar e quanto já gastou esse mês </Text>
           </View>
 
         </ScrollView>
@@ -136,152 +168,172 @@ export default function Home() {
       </View>      
     );
   }
-
+  
   return (
-
-    <View style={styles.container}>
-
-       <View style={styles.monthHeader}>
-        
-        <TouchableOpacity style={styles.monthNavButton} onPress={goToPreviousMonth}>
-          <Text style={styles.monthNavIcon}>‹</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.monthTextContainer} onPress={goToToday}>
-          <Text style={styles.monthText}>{formattedMonthYear}</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.monthNavButton} onPress={goToNextMonth}>
-          <Text style={styles.monthNavIcon}>›</Text>
-        </TouchableOpacity>
-
-      </View>
+  
+  <View style={styles.container}>
     
-      <ScrollView contentContainerStyle={styles.dashboardContent}>
+    <View style={styles.monthHeader}>
+      
+      <TouchableOpacity style={styles.monthNavButton} onPress={goToPreviousMonth}>
+        <Text style={styles.monthNavIcon}>‹</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity style={styles.monthTextContainer} onPress={goToToday}>
+        <Text style={styles.monthText}>{formattedMonthYear}</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity style={styles.monthNavButton} onPress={goToNextMonth}>
+        <Text style={styles.monthNavIcon}>›</Text>
+      </TouchableOpacity>
+   
+    </View>
+
+    <ScrollView contentContainerStyle={styles.dashboardContent}>
+      
+      <View style={styles.header}>
+        <Text style={styles.title}>💰 FinanceRS</Text>
+        <Text style={styles.greeting}>Olá, {user?.name}!</Text>
+      </View>
+
+      <View style={styles.balanceCard}>
         
-        <View style={styles.header}>
-          <Text style={styles.title}>💰 FinanceRS</Text>
-          <Text style={styles.greeting}>Olá, {user?.name}!</Text>
-        </View>
+        <Text style={styles.balanceLabel}>Saldo do Mês</Text>
 
-        <View style={styles.balanceCard}>
-          <Text style={styles.balanceLabel}>Saldo do Mês</Text>
-          <Text style={styles.balanceValue}>R$ 0,00</Text>
-          <Text style={styles.balanceSubtitle}>Disponível para gastar</Text>
-        </View>
+        <Text style={styles.balanceValue}>
+          {dadosFinanceiros?.resumo?.saldoDisponivel ? `R$ ${dadosFinanceiros.resumo.saldoDisponivel.toFixed(2).replace('.', ',')}` : 'R$ 0,00' }
+        </Text>
 
-        <View style={styles.quickActions}>
-          
-          <Text style={styles.sectionTitle}>Ações Rápidas</Text>
-          
-          <View style={styles.actionButtons}>
-           
-            <TouchableOpacity style={[styles.actionButton, styles.incomeButton]} onPress={() => navigation.navigate('AddIncome')}>
-              <Text style={styles.actionButtonIcon}>💰</Text>
-              <Text style={styles.actionButtonText}>Nova Renda</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={[styles.actionButton, styles.expenseButton]} onPress={() => navigation.navigate('AddExpense')}>
-              <Text style={styles.actionButtonIcon}>💸</Text>
-              <Text style={styles.actionButtonText}>Nova Despesa</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={[styles.actionButton, styles.investmentButton]} onPress={() => navigation.navigate('AddInvestment')}>
-              <Text style={styles.actionButtonIcon}>📈</Text>
-              <Text style={styles.actionButtonText}>Investir</Text>
-            </TouchableOpacity>
-
-          </View>
-        </View>
-
-        <View style={styles.summarySection}>
-         
-          <Text style={styles.sectionTitle}>Resumo do Mês</Text>
-          
-          <View style={styles.summaryCard}>
-            
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>Renda Total</Text>
-              <Text style={[styles.summaryValue, styles.incomeValue]}>R$ 0,00</Text>
-            </View>
-
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>Despesas</Text>
-              <Text style={[styles.summaryValue, styles.expenseValue]}>R$ 0,00</Text>
-            </View>
-
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>Investido</Text>
-              <Text style={[styles.summaryValue, styles.investmentValue]}>R$ 0,00</Text>
-            </View>
-
-          </View>
-        </View>
-
-        <View style={styles.categoriesSection}>
-          <View style={styles.sectionHeader}>
-            
-            <Text style={styles.sectionTitle}>Categorias</Text>
-            
-            <TouchableOpacity>
-              <Text style={styles.seeAllText}>Ver todas</Text>
-            </TouchableOpacity>
-
-          </View>
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-
-            <View style={styles.categoryChip}>
-              <Text style={styles.categoryChipText}>🏠 Moradia</Text>
-            </View>
-
-            <View style={styles.categoryChip}>
-              <Text style={styles.categoryChipText}>🍔 Alimentação</Text>
-            </View>
-
-            <View style={styles.categoryChip}>
-              <Text style={styles.categoryChipText}>🚗 Transporte</Text>
-            </View>
-
-            <View style={styles.categoryChip}>
-              <Text style={styles.categoryChipText}>🎮 Lazer</Text>
-            </View>
-
-          </ScrollView>
-        </View>
-      </ScrollView>
-
-      <View style={styles.bottomMenu}>
-       
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={styles.menuIcon}>📊</Text>
-          <Text style={styles.menuText}>Resumo</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={styles.menuIcon}>📝</Text>
-          <Text style={styles.menuText}>Transações</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={styles.menuIcon}>🎯</Text>
-          <Text style={styles.menuText}>Metas</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-          <Text style={styles.menuIcon}>⚙️</Text>
-          <Text style={styles.menuText}>Sair</Text>
-        </TouchableOpacity>
+        <Text style={styles.balanceSubtitle}>Disponível para gastar</Text>
 
       </View>
+
+      <View style={styles.summarySection}>
+        
+        <Text style={styles.sectionTitle}>Resumo do Mês</Text>
+        
+        <View style={styles.summaryCard}>
+          <View style={styles.summaryItem}>
+          
+            <Text style={styles.summaryLabel}>Renda Total</Text>
+
+            <Text style={[styles.summaryValue, styles.incomeValue]}>
+              {dadosFinanceiros?.resumo?.rendaTotal ? `R$ ${dadosFinanceiros.resumo.rendaTotal.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
+            </Text>
+
+          </View>
+
+          <View style={styles.summaryItem}>
+            
+            <Text style={styles.summaryLabel}>Despesas</Text>
+            
+            <Text style={[styles.summaryValue, styles.expenseValue]}>
+              {dadosFinanceiros?.resumo?.despesasTotais ? `R$ ${dadosFinanceiros.resumo.despesasTotais.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
+            </Text>
+
+          </View>
+
+          <View style={styles.summaryItem}>
+            
+            <Text style={styles.summaryLabel}>Investido</Text>
+            
+            <Text style={[styles.summaryValue, styles.investmentValue]}>
+              {dadosFinanceiros?.resumo?.investimentosTotal ? `R$ ${dadosFinanceiros.resumo.investimentosTotal.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
+            </Text>
+
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.quickActions}>
+        
+        <Text style={styles.sectionTitle}>Ações Rápidas</Text>
+        
+        <View style={styles.actionButtons}>
+          
+          <TouchableOpacity style={[styles.actionButton, styles.incomeButton]} onPress={() => navigation.navigate('AddIncome')}>
+            <Text style={styles.actionButtonIcon}>💰</Text>
+            <Text style={styles.actionButtonText}>Nova Renda</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.actionButton, styles.expenseButton]} onPress={() => navigation.navigate('AddExpense')}>
+            <Text style={styles.actionButtonIcon}>💸</Text>
+            <Text style={styles.actionButtonText}>Nova Despesa</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.actionButton, styles.investmentButton]} onPress={() => navigation.navigate('AddInvestment')}>
+            <Text style={styles.actionButtonIcon}>📈</Text>
+            <Text style={styles.actionButtonText}>Investir</Text>
+          </TouchableOpacity>
+
+        </View>
+      </View>
+
+      <View style={styles.categoriesSection}>
+       
+        <View style={styles.sectionHeader}>
+       
+          <Text style={styles.sectionTitle}>Categorias</Text>
+       
+          <TouchableOpacity>
+            <Text style={styles.seeAllText}>Ver todas</Text>
+          </TouchableOpacity>
+
+        </View>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+         
+          <View style={styles.categoryChip}>
+            <Text style={styles.categoryChipText}>🏠 Moradia</Text>
+          </View>
+
+          <View style={styles.categoryChip}>
+            <Text style={styles.categoryChipText}>🍔 Alimentação</Text>
+          </View>
+
+          <View style={styles.categoryChip}>
+            <Text style={styles.categoryChipText}>🚗 Transporte</Text>
+          </View>
+
+          <View style={styles.categoryChip}>
+            <Text style={styles.categoryChipText}>🎮 Lazer</Text>
+          </View>
+
+        </ScrollView>
+      </View>
+    </ScrollView>
+
+    <View style={styles.bottomMenu}>
+      
+      <TouchableOpacity style={styles.menuItem}>
+        <Text style={styles.menuIcon}>📊</Text>
+        <Text style={styles.menuText}>Resumo</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity style={styles.menuItem}>
+        <Text style={styles.menuIcon}>📝</Text>
+        <Text style={styles.menuText}>Transações</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity style={styles.menuItem}>
+        <Text style={styles.menuIcon}>🎯</Text>
+        <Text style={styles.menuText}>Metas</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+        <Text style={styles.menuIcon}>⚙️</Text>
+        <Text style={styles.menuText}>Sair</Text>
+      </TouchableOpacity>
+
     </View>
-  );
+  </View>
+);
 }
 
 
 const styles = StyleSheet.create({
 
-    monthHeader: {
+  monthHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -291,17 +343,21 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#a2acd6',
   },
+
   monthNavButton: {
     padding: 10,
   },
+
   monthNavIcon: {
     color: '#0f248d',
     fontSize: 24,
     fontWeight: 'bold',
   },
+
   monthTextContainer: {
     alignItems: 'center',
   },
+  
   monthText: {
     color: '#0f248d',
     fontSize: 16,
@@ -329,7 +385,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingTop: 30,
     paddingBottom: 30,
   },
 
@@ -344,14 +400,15 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#0f248d',
-    marginBottom: 5,
+    marginBottom: 15,
   },
   subtitle: {
     fontSize: 16,
     color: '#0f248d',
+    paddingBottom: 20
   },
 
   greeting: {
@@ -370,7 +427,7 @@ const styles = StyleSheet.create({
   setupTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#0f248d',
+    color: 'white',
     marginBottom: 10,
   },
 
@@ -382,7 +439,7 @@ const styles = StyleSheet.create({
   },
 
   primaryButton: {
-    backgroundColor: '#0f248d',
+    backgroundColor: 'white',
     borderRadius: 10,
     paddingVertical: 15,
     alignItems: 'center',
@@ -401,11 +458,11 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#0f248d',
+    borderColor: '#D0CEFF',
   },
 
   secondaryButtonText: {
-    color: '#0f248d',
+    color: 'white',
     fontSize: 16,
   },
 
