@@ -6,7 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAuth } from '../contexts/AuthContext'; 
 import { db } from '../services/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, collection, addDoc } from 'firebase/firestore';
 
 import { Keyboard } from 'react-native';
 
@@ -195,100 +195,155 @@ export default function SetupInitial() {
 
       try {
 
-        const dadosNumericos: Record<string, number> = {};
-
-        Object.keys(dados).forEach(key => {
-          dadosNumericos[key] =converterParaNumero(dados[key]);
-        });
-
-        const rendaTotal = (dadosNumericos.rendaRecorrente || 0) + (dadosNumericos.rendaExtra || 0);
-
-        const despesasFixasTotal =
-        
-        (dadosNumericos.moradia || 0) +
-        (dadosNumericos.energia || 0) +
-        (dadosNumericos.agua || 0) +
-        (dadosNumericos.comunicacao || 0);
-
-        const despesasVariaveisTotal = 
-            
-        (dadosNumericos.alimentacao || 0) + 
-        (dadosNumericos.gas || 0) + 
-        (dadosNumericos.lazer || 0);
-            
-        const investimentosTotal = 
-            
-        (dadosNumericos.reservaEmergencia || 0) + 
-        (dadosNumericos.outrasMetas || 0);
-
-        const saldoDisponivel = rendaTotal - despesasFixasTotal - despesasVariaveisTotal - investimentosTotal;
-
-        await updateDoc(doc(db, 'users', user.uid), {
-          
+        await updateDoc(doc(db, 'users', user.uid), { //atualiza o usuario (marca q fez setup)
           initialSetup: true,
           setupCompleted: new Date(),
-          
-          setupData: dadosNumericos,
-
-          rendas: {
-            recorrente: dadosNumericos.rendaRecorrente || 0,
-            extra: dadosNumericos.rendaExtra || 0,
-            total: rendaTotal
-          },
-
-          despesasFixas: {
-           
-            moradia: dadosNumericos.moradia || 0,
-            energia: dadosNumericos.energia || 0,
-            agua: dadosNumericos.agua || 0,
-            comunicacao: dadosNumericos.comunicacao || 0,
-            total: despesasFixasTotal
-          
-          },
-                
-          despesasVariaveis: {
-            
-            alimentacao: dadosNumericos.alimentacao || 0,
-            gas: dadosNumericos.gas || 0,
-            lazer: dadosNumericos.lazer || 0,
-            total: despesasVariaveisTotal
-      
-          },
-                
-          investimentos: {
-           
-            reservaEmergencia: dadosNumericos.reservaEmergencia || 0,
-            outrasMetas: dadosNumericos.outrasMetas || 0,
-            total: investimentosTotal
-          
-          },
-                
-          resumo: {
-            
-            rendaTotal,
-            despesasTotais: despesasFixasTotal + despesasVariaveisTotal,
-            investimentosTotal,
-            saldoDisponivel
-         
-          },
-
           lastUpdated: new Date()
-            
         });
+
+        const rendasRef = collection(db, 'users', user.uid, 'rendas'); //salva rendas na subcoleção
+
+        if (dados.rendaRecorrente && converterParaNumero(dados.rendaRecorrente) > 0) {
+
+          await addDoc(rendasRef, {
+            
+            userId: user.uid,
+            tipo: 'recorrente',
+            valor: converterParaNumero(dados.rendaRecorrente),
+            descricao: 'Renda recorrente',
+            categoria: 'Salário',
+            data: new Date(),
+            criadoEm: new Date(),
+            mes: new Date().getMonth() + 1,
+            ano: new Date().getFullYear()
+          
+          });
+        }
+
+        if (dados.rendaExtra && converterParaNumero(dados.rendaExtra) > 0) {
+
+          await addDoc(rendasRef, {
+
+            userId: user.uid,
+            tipo: 'extra',
+            valor: converterParaNumero(dados.rendaExtra),
+            descricao: 'Renda extra',
+            categoria: 'Extra',
+            data: new Date(),
+            criadoEm: new Date(),
+            mes: new Date().getMonth() + 1,
+            ano: new Date().getFullYear()
+          
+          });
+          
+        }
+
+        const despesasRef = collection(db, 'users', user.uid, 'despesas');
+
+        const despesasFixas = [ //salva despesas (subcoleçao: despesas)
+          
+          { key: 'moradia', desc: 'Moradia/Aluguel', cat: 'Moradia'},
+          { key: 'energia', desc: 'Energia', cat: 'Energia'},
+          { key: 'agua', desc: 'Água', cat: 'Água'},
+          { key: 'comunicacao', desc: 'Internet', cat: 'Comunicação'}
+        
+        ];
+
+        for (const despesa of despesasFixas) {
+
+          if (dados[despesa.key] && converterParaNumero(dados[despesa.key]) > 0) {
+
+            await addDoc(despesasRef, {
+              
+              userId: user.uid,
+              tipo: 'fixa',
+              valor: converterParaNumero(dados[despesa.key]),
+              descricao: despesa.desc,
+              categoria: despesa.cat,
+              recorrente: true,
+              data: new Date(),
+              criadoEm: new Date(),
+              mes: new Date().getMonth() + 1,
+              ano: new Date().getFullYear()
+           
+            });
+
+          }
+        }
+
+        const despesasVariaveis = [ 
+       
+          { key: 'alimentacao', desc: 'Mercado', cat: 'Mercado'},
+          { key: 'gas', desc: 'Gás', cat: 'gas' },
+          { key: 'lazer', desc: 'Lazer', cat: 'Lazer' }
+       
+        ];
+
+        for (const despesa of despesasVariaveis) {
+
+          if (dados[despesa.key] && converterParaNumero(dados[despesa.key]) > 0) {
+            
+            await addDoc(despesasRef, {
+              
+              userId: user.uid,
+              tipo: 'variavel',
+              valor: converterParaNumero(dados[despesa.key]),
+              descricao: despesa.desc,
+              categoria: despesa.cat,
+              recorrente: false,
+              data: new Date(),
+              criadoEm: new Date(),
+              mes: new Date().getMonth() + 1,
+              ano: new Date().getFullYear()
+            
+            });
+
+          }
+        }
+
+        const investimentosRef = collection(db, 'users', user.uid, 'investimentos');
+
+        const investimentos = [
+
+          { key: 'reservaEmergencia', desc: 'Reserva de emergência', cat: 'Reserva'},
+          { key: 'outrasMetas', desc: 'Outras metas', cat: 'Metas' }
+
+        ];
+
+        for (const investimento of investimentos) {
+
+          if (dados[investimento.key] && converterParaNumero(dados[investimento.key]) > 0) {
+
+            await addDoc(investimentosRef, {
+
+              userId: user.uid,
+              valor: converterParaNumero(dados[investimento.key]),
+              descricao: investimento.desc,
+              categoria: investimento.cat,
+              meta: investimento.desc,
+              data: new Date(),
+              criadoEm: new Date(),
+              mes: new Date().getMonth() + 1,
+              ano: new Date().getFullYear()
+
+            });
+
+          }
+        }
 
         navigation.reset({
           index: 0,
-          routes: [{ name: 'Home'}]
+          routes: [{ name: 'Home' }]
         });
+
+      } catch (error) {
         
-        } catch (error) {
-           
-          console.error('Erro ao salvar setup:', error);
-          Alert.alert('Erro', 'Não foi possível salvar as configurações');
-       
-        } finally {
-          setIsLoading(false);
-        }
+        console.error('Erro ao salvar setup:', error);
+        Alert.alert('Erro', 'Não foi possível salvar as configurações');
+     
+      } finally {
+        setIsLoading(false);
+      }
     
     };
 
@@ -613,5 +668,5 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: 'bold',
   },
-  
+
 });

@@ -4,7 +4,7 @@ export const useDateNavigation = () => {
 
     const [currentDate, setCurrentDate] = useState(new Date());
 
-    const currentMonth = currentDate.getMonth();
+    const currentMonth = currentDate.getMonth() + 1;
     const currentYear = currentDate.getFullYear();
 
     const goToPreviousMonth = useCallback(() => {
@@ -35,7 +35,7 @@ export const useDateNavigation = () => {
         'JANEIRO', 'FEVEREIRO', 'MARÇO', 'ABRIL', 'MAIO', 'JUNHO', 'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'
     ];
 
-    const formattedMonthYear = `${monthNames[currentMonth]} ${currentYear}`;
+    const formattedMonthYear = `${monthNames[currentDate.getMonth()]} ${currentYear}`;
 
     return {
         currentDate,

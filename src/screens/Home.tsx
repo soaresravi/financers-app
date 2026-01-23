@@ -6,7 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAuth } from '../contexts/AuthContext'; 
 import { db } from '../services/firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, updateDoc, getDocs, query, where } from 'firebase/firestore';
 import { useDateNavigation } from '../hooks/useDateNavigation';
 
 type RootStackParamList = {
@@ -32,6 +32,8 @@ export default function Home() {
 
   const {
     formattedMonthYear,
+    currentMonth,
+    currentYear,
     goToPreviousMonth,
     goToNextMonth,
     goToToday
@@ -69,20 +71,71 @@ export default function Home() {
       carregarDadosFinanceiros();
     }
 
-  }, [user?.uid, initialSetup]);
+  }, [user?.uid, initialSetup, currentMonth, currentYear]);
 
   const carregarDadosFinanceiros = async () => {
    
     if (!user?.uid) return;
     
     try {
-     
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-     
-      if (userDoc.exists()) {
-        const data = userDoc.data();
-        setDadosFinanceiros(data);
-      }
+
+      const rendasRef = collection(db, 'users', user.uid, 'rendas');
+      const despesasRef = collection(db, 'users', user.uid, 'despesas');
+      const investimentosRef = collection(db, 'users', user.uid, 'investimentos');
+      
+      const queryRendas = query(
+        rendasRef,
+        where('mes', '==', currentMonth),
+        where('ano', '==', currentYear)
+      );
+
+      const queryDespesas = query(
+        despesasRef,
+        where('mes', '==', currentMonth),
+        where('ano', '==', currentYear)
+      );
+
+      const queryInvestimentos = query(
+        investimentosRef,
+        where('mes', '==', currentMonth),
+        where('ano', '==', currentYear)
+      );
+
+      const [rendasSnapshot, despesasSnapshot, investimentosSnapshot] = await Promise.all([ //executa as queries em paralelo
+        getDocs(queryRendas),
+        getDocs(queryDespesas),
+        getDocs(queryInvestimentos)
+      ]);
+
+      let rendaTotal = 0; //calcula totais do mes atual
+
+      rendasSnapshot.forEach(doc => {
+        rendaTotal += doc.data().valor || 0;
+      });
+
+      let despesasTotais = 0;
+
+      despesasSnapshot.forEach(doc => {
+        despesasTotais += doc.data().valor || 0;
+      });
+
+      let investimentosTotais = 0;
+
+      investimentosSnapshot.forEach(doc => {
+        investimentosTotais += doc.data().valor || 0;
+      });
+
+      const saldoDisponivel = rendaTotal - despesasTotais - investimentosTotais;
+
+      setDadosFinanceiros({ //salva no state
+        rendaTotal,
+        despesasTotais,
+        investimentosTotais,
+        saldoDisponivel,
+        rendas: rendasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })), //guarda os docs tbm se precisar mostrar na lista depois
+        despesas: despesasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })),
+        investimentos: investimentosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      });
 
     } catch (error) {
       console.error('Erro ao carregar dados financeiros:', error);
@@ -201,7 +254,7 @@ export default function Home() {
         <Text style={styles.balanceLabel}>Saldo do Mês</Text>
 
         <Text style={styles.balanceValue}>
-          {dadosFinanceiros?.resumo?.saldoDisponivel ? `R$ ${dadosFinanceiros.resumo.saldoDisponivel.toFixed(2).replace('.', ',')}` : 'R$ 0,00' }
+          {dadosFinanceiros?.saldoDisponivel ? `R$ ${dadosFinanceiros.saldoDisponivel.toFixed(2).replace('.', ',')}` : 'R$ 0,00' }
         </Text>
 
         <Text style={styles.balanceSubtitle}>Disponível para gastar</Text>
@@ -218,7 +271,7 @@ export default function Home() {
             <Text style={styles.summaryLabel}>Renda Total</Text>
 
             <Text style={[styles.summaryValue, styles.incomeValue]}>
-              {dadosFinanceiros?.resumo?.rendaTotal ? `R$ ${dadosFinanceiros.resumo.rendaTotal.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
+              {dadosFinanceiros?.rendaTotal ? `R$ ${dadosFinanceiros.rendaTotal.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
             </Text>
 
           </View>
@@ -228,7 +281,7 @@ export default function Home() {
             <Text style={styles.summaryLabel}>Despesas</Text>
             
             <Text style={[styles.summaryValue, styles.expenseValue]}>
-              {dadosFinanceiros?.resumo?.despesasTotais ? `R$ ${dadosFinanceiros.resumo.despesasTotais.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
+              {dadosFinanceiros?.despesasTotais ? `R$ ${dadosFinanceiros.despesasTotais.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
             </Text>
 
           </View>
@@ -238,7 +291,7 @@ export default function Home() {
             <Text style={styles.summaryLabel}>Investido</Text>
             
             <Text style={[styles.summaryValue, styles.investmentValue]}>
-              {dadosFinanceiros?.resumo?.investimentosTotal ? `R$ ${dadosFinanceiros.resumo.investimentosTotal.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
+              {dadosFinanceiros?.investimentosTotais ? `R$ ${dadosFinanceiros.investimentosTotais.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
             </Text>
 
           </View>
