@@ -64,7 +64,7 @@ export default function App() {
     
     <AuthProvider>
      
-      <StatusBar backgroundColor='221377' barStyle='light-content' />
+      <StatusBar backgroundColor='#221377' barStyle='light-content' />
      
       <NavigationContainer>
         <AppNavigator />
