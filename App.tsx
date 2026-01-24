@@ -10,12 +10,14 @@ import Home from './src/screens/Home';
 
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import SetupInitial from './src/screens/SetupInitial';
+import AddIncome from './src/screens/AddIncome';
 
 export type RootStackParamList = {
   Login: undefined;
   Cadastro: undefined;
   Home: undefined;
   SetupInitial: undefined;
+  AddIncome: undefined;
 };
 
 const Stack = createNativeStackNavigator();
@@ -38,6 +40,7 @@ function AppNavigator() { //verifica se esta carregando os dados do usuario
         
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="SetupInitial" component={SetupInitial} />
+        <Stack.Screen name="AddIncome" component={AddIncome} />
 
       </>  
     
