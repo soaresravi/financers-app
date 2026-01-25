@@ -12,35 +12,27 @@ import { collection, addDoc, getDocs, doc, setDoc, query, where } from 'firebase
 
 type RootStackParamList = {
   Home: undefined;
-  AddExpense: undefined;
+  AddInvestment: undefined;
 };
 
 type NavigationProps = NativeStackNavigationProp<RootStackParamList>;
 
-type ExpenseType = 'recorrente' | 'variavel';
-
 interface Categoria {
   id: string;
   nome: string;
-  icone: string;
   tipo: 'despesa' | 'investimento';
-  personalizada?: boolean
+  personalizada?: boolean;
   userId?: string;
 }
 
 const categoriasPadrao = [
-  { id: 'moradia', nome: '🏠 Moradia', icone: '🏠', tipo: 'despesa' as const},
-  { id: 'alimentacao', nome: '🍔 Alimentação', icone: '🍔', tipo: 'despesa' as const},
-  { id: 'transporte', nome: '🚗 Transporte', icone: '🚗', tipo: 'despesa' as const},
-  { id: 'lazer', nome: '🎮 Lazer', icone: '🎮', tipo: 'despesa' as const},
-  { id: 'saude', nome: '🏥 Saúde', icone: '🏥', tipo: 'despesa' as const},
-  { id: 'educacao', nome: '📚 Educação', icone: '📚', tipo: 'despesa' as const},
-  { id: 'outros', nome: '📦 Outros', icone: '📦', tipo: 'despesa' as const},
+  { id: 'reserva', nome: 'Reserva de emergência', tipo: 'investimento' as const },
+  { id: 'investimentos', nome: 'Investimentos & CDB', tipo: 'investimento' as const },
+  { id: 'outros', nome: 'Outros', tipo: 'investimento' as const}
 ];
 
-type ExpenseData = {
+type InvestmentData = {
   nome: string;
-  tipo: ExpenseType;
   categoria: string;
   valorPrevisto: string;
   valorReal: string;
@@ -48,31 +40,29 @@ type ExpenseData = {
   dataReal: Date | null;
 };
 
-export default function AddExpense() {
+export default function AddInvestment() {
 
   const navigation = useNavigation<NavigationProps>();
   const { user } = useAuth();
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [showCategoriasModal, setShowCategoriasModal] = useState(false);
   const [mostrarInputNovaCategoria, setMostrarInputNovaCategoria] = useState(false);
   const [novaCategoriaNome, setNovaCategoriaNome] = useState('');
   const [categoriasUsuario, setCategoriasUsuario] = useState<Categoria[]>([]);
-  const [todasCategorias, setTodasCategorias] = useState<Categoria[]>(categoriasPadrao);
-
-  const [formData, setFormData] = useState<ExpenseData>({
+  const [todasCategorias, setTodasCategorias] = useState<Categoria[]>(categoriasPadrao);  
+  
+  const [formData, setFormData] = useState<InvestmentData>({
     nome: '',
-    tipo: 'variavel',
     categoria: '',
     valorPrevisto: '',
     valorReal: '',
     dataPrevista: null,
     dataReal: null
   });
-
+  
   const [errors, setErrors] = useState({
     nome: '',
-    tipo: '',
     categoria: '',
     valorPrevisto: '',
     valorReal: '',
@@ -93,15 +83,15 @@ export default function AddExpense() {
     if (!user?.uid) return;
 
     try {
-      
+
       const categoriasRef = collection(db, 'users', user.uid, 'categorias');
-      const q = query(categoriasRef, where('tipo', '==', 'despesa'));
+      const q = query(categoriasRef, where('tipo', '==', 'investimento'));
       const snapshot = await getDocs(q);
 
       const categorias: Categoria[] = [];
 
       snapshot.forEach(doc => {
-        
+       
         categorias.push({
           id: doc.id,
           ...doc.data()
@@ -111,11 +101,11 @@ export default function AddExpense() {
 
       setCategoriasUsuario(categorias);
       setTodasCategorias([...categoriasPadrao, ...categorias]);
-
+   
     } catch (error) {
       console.error('Erro ao carregar categorias:', error);  
     }
-  
+
   };
 
   const formatarParaDinheiro = (text: string): string => {
@@ -136,7 +126,7 @@ export default function AddExpense() {
     
   };
 
-  const validateField = (field: keyof ExpenseData, value: any): boolean => {
+  const validateField = (field: keyof InvestmentData, value: any): boolean => {
     
     let error = '';
 
@@ -175,7 +165,7 @@ export default function AddExpense() {
 
   };
 
-  const handleChange = (field: keyof ExpenseData, value: any) => {
+  const handleChange = (field: keyof InvestmentData, value: any) => {
 
     setFormData(prev => ({ ...prev, [field]: value }));
     
@@ -234,146 +224,135 @@ export default function AddExpense() {
     setShowCategoriasModal(false);
   };
 
-  const obterNomeCategoria = (categoriaId: string): string => {
+   const obterNomeCategoria = (categoriaId: string): string => {
     const categoria = todasCategorias.find(cat => cat.id === categoriaId);
     return categoria ? categoria.nome : 'Selecionar categoria';
   };
 
   const criarNovaCategoria = async () => {
-
+  
     if (!novaCategoriaNome.trim()) {
       Alert.alert('Atenção', 'Digite um nome para a categoria');
       return;
     }
-
-    const categoriaPadraoExistente = categoriasPadrao.find( cat => cat.nome.toLowerCase() === novaCategoriaNome.toLowerCase() );
-
-    if (categoriaPadraoExistente) {
-      Alert.alert('Atenção', 'Já existe uma categoria padrão com este nome');
-      return;
-    }
-
+  
     if (!user?.uid) {
       Alert.alert('Erro', 'Usuário não identificado');
       return;
     }
 
     try {
-      
+        
       const categoriaId = novaCategoriaNome .toLowerCase() .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-').replace
       (/-+/g, '-').replace(/^-|-$/g, '');
-
-      const categoriasExistentes = todasCategorias.find(cat => (cat.id === categoriaId || cat.nome.toLowerCase() === novaCategoriaNome.toLowerCase
-      ()) && cat.tipo === 'despesa');
-
+  
+      const categoriasExistentes = todasCategorias.find( cat => (cat.id === categoriaId || cat.nome.toLowerCase() === novaCategoriaNome.
+      toLowerCase()) && cat.tipo === 'investimento');
+  
       if (categoriasExistentes) {
         Alert.alert('Atenção', 'Esta categoria já existe');
         return;
       }
-
+  
       const novaCategoria: Categoria = {
         id: categoriaId,
         nome: novaCategoriaNome,
-        icone: '📝',
-        tipo: 'despesa',
+        tipo: 'investimento',
         personalizada: true,
         userId: user.uid
       };
-
+  
       const categoriasRef = await collection(db, 'users', user.uid, 'categorias');
-
+  
       await setDoc(doc(categoriasRef, categoriaId), {
         nome: novaCategoriaNome,
-        icone: '📝',
-        tipo: 'despesa',
+        tipo: 'investimento',
         personalizada: true,
         criadaEm: new Date()
       });
-
+  
       setCategoriasUsuario(prev => [...prev, novaCategoria]);
       setTodasCategorias(prev => [...prev, novaCategoria]);
-
+  
       selecionarCategoria(categoriaId);
-
+  
       setNovaCategoriaNome('');
       setMostrarInputNovaCategoria(false);
-
+  
       Alert.alert('Sucesso!', 'Categoria criada com sucesso');
-
+  
     } catch (error) {
       console.error('Erro ao criar categoria:', error);
       Alert.alert('Erro', 'Não foi possível criar a categoria');
     }
-
+  
   };
 
   const handleSalvar = async () => {
-    
+      
     if (!validateForm()) {
       Alert.alert('Atenção', 'Preencha todos os campos obrigatórios');
       return;
     }
-    
+      
     const dataParaCalculo = formData.dataReal || formData.dataPrevista;
     if (!dataParaCalculo) return;
-    
+      
     const mes = dataParaCalculo.getMonth() + 1;
     const ano = dataParaCalculo.getFullYear();
-            
+              
     const valorPrevistoNum = converterParaNumero(formData.valorPrevisto);
     const valorRealNum = converterParaNumero(formData.valorReal);
     const valorParaSalvar = valorRealNum || valorPrevistoNum;
-    
+      
     setIsLoading(true);
-    
+      
     try {
-
+  
       if (!user?.uid) {
         Alert.alert('Erro', 'Usuário não identificado');
         return;
       }
-
-      const despesasRef = collection(db, 'users', user.uid, 'despesas');
-
-      await addDoc(despesasRef, {
-        userId: user.uid,
-        nome: formData.nome.trim(),
-        tipo: formData.tipo,
-        categoria: formData.categoria,
-        valorPrevisto: valorPrevistoNum,
-        valorReal: valorRealNum,
-        dataPrevista: formData.dataPrevista ? formData.dataPrevista.toISOString() : null,
-        dataReal: formData.dataReal ? formData.dataReal.toISOString() : null,
-        valor: valorParaSalvar,
-        data: dataParaCalculo.toISOString(),
-        mes,
-        ano,
-        realizado: !!formData.dataReal && !!valorRealNum,
-        criadoEm: new Date(),
-        atualizadoEm: new Date()
-      });
-
-      Alert.alert('Sucesso!', 'Despesa adicionada com sucesso!', [{ text: 'OK', onPress: () => navigation.goBack() }]);
-   
-    } catch (error) {
       
-      console.error('Erro ao salvar despesa:', error);
-      Alert.alert('Erro', 'Não foi possível salvar a despesa');
-    
-    } finally {
-      setIsLoading(false);
-    }
+      const investimentosRef = collection(db, 'users', user.uid, 'investimentos');
+  
+        await addDoc(investimentosRef, {
+          userId: user.uid,
+          nome: formData.nome.trim(),
+          categoria: formData.categoria,
+          valorPrevisto: valorPrevistoNum,
+          valorReal: valorRealNum,
+          dataPrevista: formData.dataPrevista ? formData.dataPrevista.toISOString() : null,
+          dataReal: formData.dataReal ? formData.dataReal.toISOString() : null,
+          valor: valorParaSalvar,
+          data: dataParaCalculo.toISOString(),
+          mes,
+          ano,
+          realizado: !!formData.dataReal && !!valorRealNum,
+          criadoEm: new Date(),
+          atualizadoEm: new Date()
+        });
+  
+        Alert.alert('Sucesso!', 'Caixinha adicionada com sucesso!', [{ text: 'OK', onPress: () => navigation.goBack() }]);
+     
+      } catch (error) {
+        
+        console.error('Erro ao salvar investimento:', error);
+        Alert.alert('Erro', 'Não foi possível salvar a caixinha');
+      
+      } finally {
+        setIsLoading(false);
+      }
+  
+    };
 
-  };
+    const limparCampoValor = (campo: 'valorPrevisto' | 'valorReal') => {
+      handleChange(campo, '');
+      setErrors(prev => ({ ...prev, [campo]: '' }));
+    };
 
-  const limparCampoValor = (campo: 'valorPrevisto' | 'valorReal') => {
-    handleChange(campo, '');
-    setErrors(prev => ({ ...prev, [campo]: '' }));
-  };
-
-  return (
-    
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    return (
+        <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
 
       <View style={styles.header}>
         
@@ -381,7 +360,7 @@ export default function AddExpense() {
           <Text style={styles.backButtonText}>‹</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>Nova Despesa</Text>
+        <Text style={styles.title}>Nova caixinha</Text>
         <View style={{ width: 40 }} />
 
       </View>
@@ -390,9 +369,9 @@ export default function AddExpense() {
 
         <View style={styles.inputGroup}>
           
-          <Text style={styles.label}>Nome da despesa</Text>
+          <Text style={styles.label}>Nome da caixinha/investimento</Text>
           
-          <TextInput style={[ styles.input, errors.nome ? styles.inputError : null ]} placeholder="Ex: Mercado, Gás, Transporte..." placeholderTextColor=
+          <TextInput style={[ styles.input, errors.nome ? styles.inputError : null ]} placeholder="Ex: Viagem, Casa própria..." placeholderTextColor=
           "#8581FF" value={formData.nome} onChangeText={(text) => handleChange('nome', text)} onBlur={() => validateField('nome', formData.nome)}
           maxLength={50} />
 
@@ -400,23 +379,6 @@ export default function AddExpense() {
             <Text style={styles.errorText}>{errors.nome}</Text>
           ) : null}
 
-        </View>
-
-        <View style={styles.inputGroup}>
-          
-          <Text style={styles.label}>Tipo</Text>
-          
-          <View style={styles.typeContainer}>
-            
-            <TouchableOpacity style={[ styles.typeButton, formData.tipo === 'recorrente' && styles.typeButtonActive ]} onPress={() => handleChange('tipo', 'recorrente')}>
-              <Text style={[ styles.typeButtonText, formData.tipo === 'recorrente' && styles.typeButtonTextActive ]}> Recorrente </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={[ styles.typeButton, formData.tipo === 'variavel' && styles.typeButtonActive ]} onPress={() => handleChange('tipo', 'variavel')}>
-              <Text style={[ styles.typeButtonText, formData.tipo === 'variavel' && styles.typeButtonTextActive ]}> Variável </Text>
-            </TouchableOpacity>
-
-          </View>
         </View>
 
         <View style={styles.inputGroup}>
@@ -499,7 +461,7 @@ export default function AddExpense() {
                   
                   <View style={styles.novaCategoriaInputRow}>
                     
-                    <TextInput style={styles.novaCategoriaInput} placeholder="Ex: Pets, Assinaturas, Presentes..." placeholderTextColor="#8581FF"
+                    <TextInput style={styles.novaCategoriaInput} placeholder="Ex: Entradas, Viagens..." placeholderTextColor="#8581FF"
                     value={novaCategoriaNome} onChangeText={setNovaCategoriaNome} autoFocus maxLength={30} />
                     
                     <TouchableOpacity style={styles.novaCategoriaConfirmButton} onPress={criarNovaCategoria}>
@@ -648,7 +610,7 @@ export default function AddExpense() {
         <View style={styles.infoBox}>
 
           <Text style={styles.infoText}>
-            <Text style={styles.infoTextBold}>Dica:</Text> Crie categorias personalizadas para organizar melhor suas despesas!
+            <Text style={styles.infoTextBold}>Dica:</Text> Use esta opção para separar uma quantia todo mês como reserva de emergência, investimentos, caixinha para viajar e etc.
           </Text>
 
         </View>
@@ -659,7 +621,7 @@ export default function AddExpense() {
           {isLoading ? (
             <ActivityIndicator color="#FFF" />
           ) : (
-            <Text style={styles.saveButtonText}>Salvar Despesa</Text>
+            <Text style={styles.saveButtonText}>Salvar caixinha</Text>
           )}
 
         </TouchableOpacity>
@@ -668,7 +630,7 @@ export default function AddExpense() {
 
       </ScrollView>
     </KeyboardAvoidingView>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
@@ -745,36 +707,6 @@ const styles = StyleSheet.create({
     color: '#F44336',
     fontSize: 14,
     marginTop: 5,
-  },
-  
-  typeContainer: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-
-  typeButton: {
-    flex: 1,
-    backgroundColor: '#FFF',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#aab3ff',
-  },
-
-  typeButtonActive: {
-    backgroundColor: '#0f248d',
-    borderColor: '#0f248d',
-  },
-
-  typeButtonText: {
-    fontSize: 16,
-    color: '#666',
-    fontWeight: '500',
-  },
-
-  typeButtonTextActive: {
-    color: '#FFF',
   },
 
   categoriaButton: {
