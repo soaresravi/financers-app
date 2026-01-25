@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAuth } from '../contexts/AuthContext'; 
@@ -16,6 +16,7 @@ type RootStackParamList = {
   AddIncome: undefined;
   AddExpense: undefined;
   AddInvestment: undefined;
+  Categories: undefined;
 };
 
 type NavigationProps = NativeStackNavigationProp<RootStackParamList>;
@@ -23,7 +24,8 @@ type NavigationProps = NativeStackNavigationProp<RootStackParamList>;
 export default function Home() { 
  
   const navigation = useNavigation<NavigationProps>();
-
+  
+  const isFocused = useIsFocused();
   const  { user, signOut } = useAuth();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -67,17 +69,19 @@ export default function Home() {
 
   useEffect(() => {
    
-    if (user?.uid && initialSetup) {
+    if (isFocused && user?.uid && initialSetup) {
       carregarDadosFinanceiros();
     }
 
-  }, [user?.uid, initialSetup, currentMonth, currentYear]);
+  }, [user?.uid, initialSetup, currentMonth, currentYear, isFocused]);
 
   const carregarDadosFinanceiros = async () => {
    
     if (!user?.uid) return;
     
     try {
+
+      setIsLoading(true);
 
       const rendasRef = collection(db, 'users', user.uid, 'rendas');
       const despesasRef = collection(db, 'users', user.uid, 'despesas');
@@ -139,9 +143,28 @@ export default function Home() {
 
     } catch (error) {
       console.error('Erro ao carregar dados financeiros:', error);
+  
+    } finally {
+      setIsLoading(false);
     }
 
   };
+
+  const atualizarDados = () => {
+
+    if (!user?.uid && initialSetup) {
+      carregarDadosFinanceiros();
+    }
+  
+  };
+
+  useEffect(() => {
+   
+    if (isFocused && user?.uid && initialSetup) {
+      carregarDadosFinanceiros();
+    }
+
+  }, [isFocused]);
 
   const handleCompleteSetup = async () => {
 
@@ -171,7 +194,7 @@ export default function Home() {
     return (
       
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4D48C8" />
+        <ActivityIndicator size="large" color="#dadafa" />
         <Text style={styles.loadingText}>Carregando...</Text>
       </View>
 
@@ -251,7 +274,7 @@ export default function Home() {
 
       <View style={styles.balanceCard}>
         
-        <Text style={styles.balanceLabel}>Saldo do Mês</Text>
+        <Text style={styles.balanceLabel}>Saldo do mês</Text>
 
         <Text style={styles.balanceValue}>
           {dadosFinanceiros?.saldoDisponivel ? `R$ ${dadosFinanceiros.saldoDisponivel.toFixed(2).replace('.', ',')}` : 'R$ 0,00' }
@@ -263,12 +286,12 @@ export default function Home() {
 
       <View style={styles.summarySection}>
         
-        <Text style={styles.sectionTitle}>Resumo do Mês</Text>
+        <Text style={styles.sectionTitle}>Resumo do mês</Text>
         
         <View style={styles.summaryCard}>
           <View style={styles.summaryItem}>
           
-            <Text style={styles.summaryLabel}>Renda Total</Text>
+            <Text style={styles.summaryLabel}>Renda total</Text>
 
             <Text style={[styles.summaryValue, styles.incomeValue]}>
               {dadosFinanceiros?.rendaTotal ? `R$ ${dadosFinanceiros.rendaTotal.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
@@ -300,23 +323,23 @@ export default function Home() {
 
       <View style={styles.quickActions}>
         
-        <Text style={styles.sectionTitle}>Ações Rápidas</Text>
+        <Text style={styles.sectionTitle}>Ações rápidas</Text>
         
         <View style={styles.actionButtons}>
           
           <TouchableOpacity style={[styles.actionButton, styles.incomeButton]} onPress={() => navigation.navigate('AddIncome')}>
             <Text style={styles.actionButtonIcon}>💰</Text>
-            <Text style={styles.actionButtonText}>Nova Renda</Text>
+            <Text style={styles.actionButtonText}>Nova renda</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.actionButton, styles.expenseButton]} onPress={() => navigation.navigate('AddExpense')}>
             <Text style={styles.actionButtonIcon}>💸</Text>
-            <Text style={styles.actionButtonText}>Nova Despesa</Text>
+            <Text style={styles.actionButtonText}>Nova despesa</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.actionButton, styles.investmentButton]} onPress={() => navigation.navigate('AddInvestment')}>
             <Text style={styles.actionButtonIcon}>📈</Text>
-            <Text style={styles.actionButtonText}>Investir</Text>
+            <Text style={styles.actionButtonText}>Caixinha</Text>
           </TouchableOpacity>
 
         </View>
@@ -328,7 +351,7 @@ export default function Home() {
        
           <Text style={styles.sectionTitle}>Categorias</Text>
        
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Categories')}>
             <Text style={styles.seeAllText}>Ver todas</Text>
           </TouchableOpacity>
 
@@ -444,7 +467,7 @@ const styles = StyleSheet.create({
 
   dashboardContent: {
     paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingTop: 40,
     paddingBottom: 100,
   },
 

@@ -11,6 +11,7 @@ import Home from './src/screens/Home';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import SetupInitial from './src/screens/SetupInitial';
 import AddIncome from './src/screens/AddIncome';
+import AddExpense from './src/screens/AddExpense';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -18,6 +19,7 @@ export type RootStackParamList = {
   Home: undefined;
   SetupInitial: undefined;
   AddIncome: undefined;
+  AddExpense: undefined;
 };
 
 const Stack = createNativeStackNavigator();
@@ -41,6 +43,7 @@ function AppNavigator() { //verifica se esta carregando os dados do usuario
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="SetupInitial" component={SetupInitial} />
         <Stack.Screen name="AddIncome" component={AddIncome} />
+        <Stack.Screen name="AddExpense" component={AddExpense} />
 
       </>  
     
@@ -64,7 +67,7 @@ export default function App() {
     
     <AuthProvider>
      
-      <StatusBar backgroundColor='#221377' barStyle='light-content' />
+      <StatusBar backgroundColor='#dadafa' barStyle='light-content' />
      
       <NavigationContainer>
         <AppNavigator />

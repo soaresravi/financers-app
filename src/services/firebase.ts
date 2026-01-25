@@ -37,8 +37,10 @@ export const authService = { //funções de autenticação. agrupa todas as op n
             return userCredential;
        
         } catch (error) {
+          
             const authError = error as AuthError;
             throw new Error(this.getErrorMessage(authError.code));
+       
         }
     },
 
