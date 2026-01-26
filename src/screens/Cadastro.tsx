@@ -127,7 +127,7 @@ export default function Cadastro() {
           
           <Text style={styles.label}> Nome completo </Text>
          
-          <TextInput style={[ styles.input, errors.name ? styles.inputError : null ]} placeholder='Digite seu nome' placeholderTextColor='#565475'
+          <TextInput style={[ styles.input, errors.name ? styles.inputError : null ]} placeholder='Digite seu nome' placeholderTextColor='#8581FF'
           value={formData.name} onChangeText={(text) => handleChange('name', text)} onBlur={() => validateField('name', formData.name)} />
           
           {errors.name ?
@@ -140,7 +140,7 @@ export default function Cadastro() {
          
           <Text style={styles.label}> Email </Text>
          
-          <TextInput style={[ styles.input, errors.email ? styles.inputError : null ]} placeholder='seu@email.com' placeholderTextColor='#565475'
+          <TextInput style={[ styles.input, errors.email ? styles.inputError : null ]} placeholder='seu@email.com' placeholderTextColor='#8581FF'
           value={formData.email} onChangeText={(text) => handleChange('email', text)} onBlur={() => validateField('email', formData.email)}
           keyboardType='email-address' autoCapitalize='none' />
 
@@ -157,7 +157,7 @@ export default function Cadastro() {
           <View style={styles.passwordContainer}>
             
             <TextInput style={[ styles.input, styles.passwordInput, errors.password ? styles.inputError : null ]} placeholder='Mínimo 6 caracteres'
-            placeholderTextColor='#565475' value={formData.password} onChangeText={(text) => handleChange('password', text)} onBlur={() =>
+            placeholderTextColor='#8581FF' value={formData.password} onChangeText={(text) => handleChange('password', text)} onBlur={() =>
             validateField('password', formData.password)} secureTextEntry={!showPassword} />
 
             <TouchableOpacity style={styles.eyeButton} onPress={() => setShowPassword(!showPassword)}>
@@ -179,7 +179,7 @@ export default function Cadastro() {
           <View style={styles.passwordContainer}>
             
             <TextInput style={[ styles.input, styles.passwordInput, errors.confirmPassword ? styles.inputError : null ]} placeholder='Digite
-            novamente' placeholderTextColor='#565475' value={formData.confirmPassword} onChangeText={(text) => handleChange('confirmPassword', text)}
+            novamente' placeholderTextColor='#8581FF' value={formData.confirmPassword} onChangeText={(text) => handleChange('confirmPassword', text)}
             secureTextEntry={!showConfirmPassword} />
 
             <TouchableOpacity style={styles.eyeButton} onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    backgroundColor: '#b9c4f7',
+    backgroundColor: 'white',
     borderRadius: 15,
     paddingHorizontal: 15,
     paddingVertical: 12,

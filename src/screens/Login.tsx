@@ -110,9 +110,9 @@ export default function Login() {
           
             <Text style={styles.label}> Email </Text>
            
-            <TextInput style={[ styles.input, errors.email ? styles.inputError : null ]} placeholder='seu@wmail.com' value={formData.email}
-            onChangeText={(text) => handleChange('email', text)} onBlur={() => validateField('email', formData.email)} keyboardType='email-address'
-            autoCapitalize='none' autoComplete='email' />
+            <TextInput style={[ styles.input, errors.email ? styles.inputError : null ]} placeholder='seu@wmail.com' placeholderTextColor={'#8581FF'}
+            value={formData.email} onChangeText={(text) => handleChange('email', text)} onBlur={() => validateField('email', formData.email)}
+            keyboardType='email-address' autoCapitalize='none' autoComplete='email' />
 
             {errors.email ?
                 <Text style={styles.errorText}> {errors.email} </Text>
@@ -127,8 +127,8 @@ export default function Login() {
             <View style={styles.passwordContainer}>
               
               <TextInput style={[ styles.input, styles.passwordInput, errors.password ? styles.inputError : null ]} placeholder='Digite sua senha'
-              value={formData.password} onChangeText={(text) => handleChange('password', text)} onBlur={() => validateField('password', formData
-              .password)} secureTextEntry={!showPassword} autoComplete='password' />
+              placeholderTextColor={'#8581FF'} value={formData.password} onChangeText={(text) => handleChange('password', text)} onBlur={() =>
+              validateField('password', formData.password)} secureTextEntry={!showPassword} autoComplete='password' />
 
               <TouchableOpacity style={styles.eyeButton} onPress={() => setShowPassword(!showPassword)}>
                 <Text style={styles.eyeText}> {showPassword ? '👁️' : '👁️‍🗨️'} </Text>
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    backgroundColor: '#b9c4f7',
+    backgroundColor: 'white',
     borderRadius: 15,
     paddingHorizontal: 15,
     paddingVertical: 12,

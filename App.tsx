@@ -4,15 +4,16 @@ import { StatusBar} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+
 import Login from './src/screens/Login';
 import Cadastro from './src/screens/Cadastro';
 import Home from './src/screens/Home';
-
-import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import SetupInitial from './src/screens/SetupInitial';
 import AddIncome from './src/screens/AddIncome';
 import AddExpense from './src/screens/AddExpense';
 import AddInvestment from './src/screens/AddInvestment';
+import Categories from './src/screens/Categories';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -22,6 +23,7 @@ export type RootStackParamList = {
   AddIncome: undefined;
   AddExpense: undefined;
   AddInvestment: undefined;
+  Categories: undefined;
 };
 
 const Stack = createNativeStackNavigator();
@@ -47,6 +49,7 @@ function AppNavigator() { //verifica se esta carregando os dados do usuario
         <Stack.Screen name="AddIncome" component={AddIncome} />
         <Stack.Screen name="AddExpense" component={AddExpense} />
         <Stack.Screen name="AddInvestment" component={AddInvestment} />
+        <Stack.Screen name="Categories" component={Categories} />
 
       </>  
     
