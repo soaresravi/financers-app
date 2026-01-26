@@ -14,7 +14,7 @@
 
 ## 📖 Sobre o Projeto
 
-O **Financers** é um aplicativo mobile para controle financeiro pessoal desenvolvido como projeto de portfólio. O objetivo é criar uma ferramenta intuitiva que substitua planilhas complexas, focando nas funcionalidades essenciais para o dia a dia.
+O **FinanceRS** é um aplicativo mobile para controle financeiro pessoal desenvolvido como projeto de portfólio. O objetivo é criar uma ferramenta intuitiva que substitua planilhas complexas, focando nas funcionalidades essenciais para o dia a dia.
 
 ### 🎯 Objetivos
 - **Portfólio Profissional**: Demonstrar habilidades completas em desenvolvimento mobile
