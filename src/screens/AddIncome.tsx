@@ -144,7 +144,7 @@ export default function AddIncome() {
     const validations = [
       validateField('nome', formData.nome),
       !formData.valorPrevisto && !formData.valorReal ? false : true,
-      !formData.valorPrevisto && !formData.dataReal ? false : true
+      !formData.dataPrevista && !formData.dataReal ? false : true
     ];
 
     const isValid = validations.every(v => v === true);
@@ -498,12 +498,12 @@ const styles = StyleSheet.create({
   },
 
   inputError: {
-    borderColor: '#FF6B6B',
+    borderColor: '#F44336',
     borderWidth: 2,
   },
 
   errorText: {
-    color: '#FF6B6B',
+    color: '#F44336',
     fontSize: 14,
     marginTop: 5,
   },
@@ -600,11 +600,11 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#FF6B6B',
+    borderColor: '#F44336',
   },
 
   formErrorText: {
-    color: '#FF6B6B',
+    color: '#F44336',
     fontSize: 14,
     fontWeight: '500',
     textAlign: 'center',
