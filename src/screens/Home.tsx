@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import Svg, { Circle, G, Path, Text as SvgText } from 'react-native-svg';
+import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
 
 import { useAuth } from '../contexts/AuthContext'; 
 import { db } from '../services/firebase';
@@ -380,69 +380,73 @@ export default function Home() {
         <Text style={styles.balanceSubtitle}>Disponível para gastar</Text>
 
       </View>
-      
-      <View style={styles.chartSection}>
+
+      {(dadosFinanceiros?.rendaTotal > 0) && (
+
+        <View style={styles.chartSection}>
         
-        <Text style={styles.sectionTitle}>Distribuição financeira</Text>
+          <Text style={styles.sectionTitle}>Distribuição financeira</Text>
         
-        <View style={styles.chartWrapper}>
+          <View style={styles.chartWrapper}>
           
-          <View style={styles.pieChartContainer}>
+            <View style={styles.pieChartContainer}>
             
-            <Svg width={180} height={180}>
+              <Svg width={180} height={180}>
               
-              {(() => {
+                {(() => {
                 
-                const data = getPieChartData();
-                let currentAngle = 0;
+                  const data = getPieChartData();
+                  let currentAngle = 0;
                 
-                return data.map((item, index) => {
+                  return data.map((item, index) => {
                   
-                  if (item.percentage === 0) return null;
+                    if (item.percentage === 0) return null;
                   
-                  const angle = (item.percentage / 100) * 360;
-                  const coordinates = calculateCoordinates( currentAngle, currentAngle + angle, 80, 90 );
+                    const angle = (item.percentage / 100) * 360;
+                    const coordinates = calculateCoordinates( currentAngle, currentAngle + angle, 80, 90 );
                   
-                  currentAngle += angle;
+                    currentAngle += angle;
                   
-                  return (
-                  
-                  <G key={item.name}>
+                    return (
                     
-                    <Path d={coordinates.path} fill={item.color} stroke="#fff" strokeWidth="1" />
+                    <G key={item.name}>
                     
-                    {item.percentage > 5 && (
+                      <Path d={coordinates.path} fill={item.color} stroke="#fff" strokeWidth="1" />
+                    
+                      {item.percentage > 5 && (
                       
-                      <SvgText x={coordinates.textX} y={coordinates.textY} textAnchor="middle" fill="#FFFFFF" fontSize="12" fontWeight="bold"
-                      fontFamily="System"> {item.percentage}% </SvgText>
+                        <SvgText x={coordinates.textX} y={coordinates.textY} textAnchor="middle" fill="#FFFFFF" fontSize="12" fontWeight="bold"
+                        fontFamily="System"> {item.percentage}% </SvgText>
 
-                    )}
+                      )}
 
-                  </G>
-                );
-              });
+                    </G>
+                  );
+                });
 
-            })()}
-            </Svg>
+              })()}
+              </Svg>
+
+            </View>
+          
+            <View style={styles.legendContainer}>
+            
+              {getPieChartData().map((item) => (
+              
+                <View key={item.name} style={styles.legendItem}>  
+                  <View style={[styles.legendColor, { backgroundColor: item.color }]} />
+                  <Text style={styles.legendText}>{item.name}</Text>
+                </View>
+
+              ))}
+
+           </View>
 
           </View>
-          
-          <View style={styles.legendContainer}>
-            
-            {getPieChartData().map((item) => (
-              
-              <View key={item.name} style={styles.legendItem}>  
-                <View style={[styles.legendColor, { backgroundColor: item.color }]} />
-                <Text style={styles.legendText}>{item.name}</Text>
-              </View>
-
-            ))}
-
-         </View>
-
         </View>
-      </View>
 
+      )}
+      
       <View style={styles.quickActions}>
         
         <Text style={styles.sectionTitle}>Ações rápidas</Text>
