@@ -12,6 +12,7 @@ import { collection, doc, getDoc, updateDoc, getDocs, query, where } from 'fireb
 import { useDateNavigation } from '../hooks/useDateNavigation';
 
 type RootStackParamList = {
+  MainTabs: undefined;
   Home: undefined;
   Login: undefined;
   SetupInitial: undefined;
@@ -218,11 +219,6 @@ export default function Home() {
   
   };
 
-  const handleLogout = async () => {
-    await signOut();
-    navigation.navigate('Login');
-  };
-
   const getPieChartData = (): PieChartItem[] => {
 
     const rendaTotal = dadosFinanceiros?.rendaTotal || 0;
@@ -333,8 +329,8 @@ export default function Home() {
           </View>
 
         </ScrollView>
-
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        
+        <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
           <Text style={styles.logoutButtonText}> Sair </Text>
         </TouchableOpacity>
 
@@ -528,7 +524,7 @@ export default function Home() {
         </View>
       </View>
 
-      <View style={styles.categoriesSection}>
+      <View>
        
         <View style={styles.sectionHeader}>
        
@@ -562,29 +558,6 @@ export default function Home() {
       </View>
     </ScrollView>
 
-    <View style={styles.bottomMenu}>
-      
-      <TouchableOpacity style={styles.menuItem}>
-        <Text style={styles.menuIcon}>📊</Text>
-        <Text style={styles.menuText}>Resumo</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.menuItem}>
-        <Text style={styles.menuIcon}>📝</Text>
-        <Text style={styles.menuText}>Transações</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.menuItem}>
-        <Text style={styles.menuIcon}>🎯</Text>
-        <Text style={styles.menuText}>Metas</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-        <Text style={styles.menuIcon}>⚙️</Text>
-        <Text style={styles.menuText}>Sair</Text>
-      </TouchableOpacity>
-
-    </View>
   </View>
 );
 }
@@ -770,26 +743,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#D0CEFF',
   },
-    chartSection: {
-    marginTop: 10, // REDUZIDO de 20
-    marginBottom: 15, // REDUZIDO de 25
+  
+  chartSection: {
+    marginTop: 10, 
+    marginBottom: 15,
   },
 
-  // GRÁFICO E LEGENDA LADO A LADO
   chartWrapper: {
     flexDirection: 'row',
-    alignItems: 'center', // Centraliza verticalmente
+    alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
   },
 
-  // GRÁFICO MAIOR
   pieChartContainer: {
     alignItems: 'center',
     justifyContent: 'center',
   },
 
-  // LEGENDA SIMPLES
   legendContainer: {
     paddingLeft: 15,
     flex: 1,
@@ -814,12 +785,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // MARGEM MENOR para ações rápidas também
   quickActions: {
-    marginTop: 10, // Adicionado para ficar mais próximo
-    marginBottom: 20, // REDUZIDO de 30
+    marginTop: 10,
+    marginBottom: 20, 
   },
-
 
   sectionTitle: {
     fontSize: 20,
@@ -895,10 +864,6 @@ const styles = StyleSheet.create({
     color: 'rgb(245, 236, 236)'
   },
 
-  categoriesSection: {
-    marginBottom: 30,
-  },
-
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -922,34 +887,6 @@ const styles = StyleSheet.create({
   categoryChipText: {
     color: 'white',
     fontSize: 14,
-  },
-
-  bottomMenu: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#dadafa',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 15,
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
-  },
-
-  menuItem: {
-    alignItems: 'center',
-  },
-
-  menuIcon: {
-    fontSize: 20,
-    color: '#0f248d',
-    marginBottom: 3,
-  },
-
-  menuText: {
-    color: '#0f248d',
-    fontSize: 12,
   },
 
   logoutButton: {
