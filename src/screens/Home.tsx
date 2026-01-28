@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
 
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import Svg, { Circle, G, Path, Text as SvgText } from 'react-native-svg';
 
 import { useAuth } from '../contexts/AuthContext'; 
 import { db } from '../services/firebase';
@@ -20,6 +22,19 @@ type RootStackParamList = {
 };
 
 type NavigationProps = NativeStackNavigationProp<RootStackParamList>;
+
+type PieChartItem = {
+  name: string;
+  value: number;
+  color: string;
+  percentage: number;
+};
+
+type Coordinates = {
+  path: string;
+  textX: number;
+  textY: number;
+};
 
 export default function Home() { 
  
@@ -111,16 +126,34 @@ export default function Home() {
         getDocs(queryInvestimentos)
       ]);
 
-      let rendaTotal = 0; //calcula totais do mes atual
+      let rendaRecorrente = 0;
+      let rendaExtra = 0;
 
       rendasSnapshot.forEach(doc => {
-        rendaTotal += doc.data().valor || 0;
+
+        const data = doc.data();
+
+        if (data.tipo === 'recorrente') {
+          rendaRecorrente += data.valor || 0;
+        } else if (data.tipo === 'extra') {
+          rendaExtra += data.valor || 0;
+        }
+
       });
 
-      let despesasTotais = 0;
+      let despesasRecorrentes = 0;
+      let despesasExtras = 0;
 
       despesasSnapshot.forEach(doc => {
-        despesasTotais += doc.data().valor || 0;
+
+        const data = doc.data();
+
+        if (data.tipo === 'fixa') {
+          despesasRecorrentes += data.valor || 0;
+        } else if (data.tipo === 'variavel') {
+          despesasExtras += data.valor || 0;
+        }
+
       });
 
       let investimentosTotais = 0;
@@ -129,16 +162,25 @@ export default function Home() {
         investimentosTotais += doc.data().valor || 0;
       });
 
+      const rendaTotal = rendaRecorrente + rendaExtra;
+      const despesasTotais = despesasRecorrentes + despesasExtras;
       const saldoDisponivel = rendaTotal - despesasTotais - investimentosTotais;
 
-      setDadosFinanceiros({ //salva no state
+      setDadosFinanceiros({
+        
+        rendaRecorrente,
+        rendaExtra,
         rendaTotal,
+        despesasRecorrentes,
+        despesasExtras,
         despesasTotais,
         investimentosTotais,
         saldoDisponivel,
-        rendas: rendasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })), //guarda os docs tbm se precisar mostrar na lista depois
+
+        rendas: rendasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })),
         despesas: despesasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })),
         investimentos: investimentosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+
       });
 
     } catch (error) {
@@ -148,14 +190,6 @@ export default function Home() {
       setIsLoading(false);
     }
 
-  };
-
-  const atualizarDados = () => {
-
-    if (!user?.uid && initialSetup) {
-      carregarDadosFinanceiros();
-    }
-  
   };
 
   useEffect(() => {
@@ -189,6 +223,69 @@ export default function Home() {
     navigation.navigate('Login');
   };
 
+  const getPieChartData = (): PieChartItem[] => {
+
+    const rendaTotal = dadosFinanceiros?.rendaTotal || 0;
+    const despesasTotais = dadosFinanceiros?.despesasTotais || 0;
+    const investimentosTotais = dadosFinanceiros?.investimentosTotais || 0;
+
+    const totalGeral = rendaTotal + despesasTotais + investimentosTotais;
+
+    if (totalGeral === 0) {
+
+      return [
+        
+        { name: 'Renda total', value: 0, color: '#CCCCCC', percentage: 0 },
+        { name: 'Despesas totais', value: 0, color: '#CCCCCC', percentage: 0 },
+        { name: 'Caixinha', value: 0, color: '#CCCCCC', percentage: 0 }
+      
+      ];
+
+    }
+
+    const rendaPorcentagem = parseFloat(((rendaTotal / totalGeral) * 100).toFixed(1));
+    const despesasPorcentagem = parseFloat(((despesasTotais / totalGeral) * 100).toFixed(1));
+    const investimentosPorcentagem = parseFloat(((investimentosTotais / totalGeral) * 100).toFixed(1));
+
+    return [
+      
+      { name: 'Renda total', value: rendaTotal, color: '#674EA7', percentage: rendaPorcentagem },
+      { name: 'Despesas totais', value: despesasTotais, color: '#73FFA1', percentage: despesasPorcentagem },
+      { name: 'Caixinha', value: investimentosTotais, color: '#FF5555', percentage: investimentosPorcentagem }
+    
+    ];
+
+  };
+
+  const calculateCoordinates = (
+    
+    startAngle: number,
+    endAngle: number,
+    radius: number,
+    center: number
+ 
+  ): Coordinates => {
+    
+    const startRad = (startAngle - 90) * Math.PI / 180;
+    const endRad = (endAngle - 90) * Math.PI / 180;
+
+    const x1 = center + radius * Math.cos(startRad);
+    const y1 = center + radius * Math.sin(startRad);
+    const x2 = center + radius * Math.cos(endRad);
+    const y2 = center + radius * Math.sin(endRad);
+
+    const largeArcFlag = (endAngle - startAngle) > 180 ? 1 : 0;
+
+    const middleAngle = (startAngle + (endAngle - startAngle) / 2);
+    const middleRad = (middleAngle - 90) * Math.PI / 180;
+
+    return {
+      path: `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`,
+      textX: center + (radius * 0.7) * Math.cos(middleRad),
+      textY: center + (radius * 0.7) * Math.sin(middleRad)
+    };
+
+  };
   if (isLoading) {
    
     return (
@@ -283,41 +380,66 @@ export default function Home() {
         <Text style={styles.balanceSubtitle}>Disponível para gastar</Text>
 
       </View>
-
-      <View style={styles.summarySection}>
+      
+      <View style={styles.chartSection}>
         
-        <Text style={styles.sectionTitle}>Resumo do mês</Text>
+        <Text style={styles.sectionTitle}>Distribuição financeira</Text>
         
-        <View style={styles.summaryCard}>
-          <View style={styles.summaryItem}>
+        <View style={styles.chartWrapper}>
           
-            <Text style={styles.summaryLabel}>Renda total</Text>
+          <View style={styles.pieChartContainer}>
+            
+            <Svg width={180} height={180}>
+              
+              {(() => {
+                
+                const data = getPieChartData();
+                let currentAngle = 0;
+                
+                return data.map((item, index) => {
+                  
+                  if (item.percentage === 0) return null;
+                  
+                  const angle = (item.percentage / 100) * 360;
+                  const coordinates = calculateCoordinates( currentAngle, currentAngle + angle, 80, 90 );
+                  
+                  currentAngle += angle;
+                  
+                  return (
+                  
+                  <G key={item.name}>
+                    
+                    <Path d={coordinates.path} fill={item.color} stroke="#fff" strokeWidth="1" />
+                    
+                    {item.percentage > 5 && (
+                      
+                      <SvgText x={coordinates.textX} y={coordinates.textY} textAnchor="middle" fill="#FFFFFF" fontSize="12" fontWeight="bold"
+                      fontFamily="System"> {item.percentage}% </SvgText>
 
-            <Text style={[styles.summaryValue, styles.incomeValue]}>
-              {dadosFinanceiros?.rendaTotal ? `R$ ${dadosFinanceiros.rendaTotal.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
-            </Text>
+                    )}
+
+                  </G>
+                );
+              });
+
+            })()}
+            </Svg>
 
           </View>
-
-          <View style={styles.summaryItem}>
+          
+          <View style={styles.legendContainer}>
             
-            <Text style={styles.summaryLabel}>Despesas</Text>
-            
-            <Text style={[styles.summaryValue, styles.expenseValue]}>
-              {dadosFinanceiros?.despesasTotais ? `R$ ${dadosFinanceiros.despesasTotais.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
-            </Text>
+            {getPieChartData().map((item) => (
+              
+              <View key={item.name} style={styles.legendItem}>  
+                <View style={[styles.legendColor, { backgroundColor: item.color }]} />
+                <Text style={styles.legendText}>{item.name}</Text>
+              </View>
 
-          </View>
+            ))}
 
-          <View style={styles.summaryItem}>
-            
-            <Text style={styles.summaryLabel}>Investido</Text>
-            
-            <Text style={[styles.summaryValue, styles.investmentValue]}>
-              {dadosFinanceiros?.investimentosTotais ? `R$ ${dadosFinanceiros.investimentosTotais.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
-            </Text>
+         </View>
 
-          </View>
         </View>
       </View>
 
@@ -342,6 +464,63 @@ export default function Home() {
             <Text style={styles.actionButtonText}>Caixinha</Text>
           </TouchableOpacity>
 
+        </View>
+      </View>
+
+      <View style={styles.summarySection}>
+        
+        <Text style={styles.sectionTitle}>Resumo do mês</Text>
+        
+        <View style={styles.summaryCard}>
+          <View style={styles.summaryItem}>
+          
+            <Text style={styles.summaryLabel}>Renda recorrente</Text>
+
+            <Text style={[styles.summaryValue]}>
+              {dadosFinanceiros?.rendaRecorrente ? `R$ ${dadosFinanceiros.rendaRecorrente.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
+            </Text>
+
+          </View>
+
+          <View style={styles.summaryItem}>
+            
+            <Text style={styles.summaryLabel}>Renda extra</Text>
+            
+            <Text style={styles.summaryValue}>
+              {dadosFinanceiros?.rendaExtra ? `R$ ${dadosFinanceiros.rendaExtra.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
+            </Text>
+
+          </View>
+
+          <View style={styles.summaryItem}>
+            
+            <Text style={styles.summaryLabel}>Despesas recorrentes</Text>
+            
+            <Text style={styles.summaryValue}>
+              {dadosFinanceiros?.despesasRecorrentes ? `R$ ${dadosFinanceiros.despesasRecorrentes.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
+            </Text>
+
+          </View>
+
+          <View style={styles.summaryItem}>
+            
+            <Text style={styles.summaryLabel}>Despesas extras</Text>
+            
+            <Text style={styles.summaryValue}>
+              {dadosFinanceiros?.despesasExtras ? `R$ ${dadosFinanceiros.despesasExtras.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
+            </Text>
+
+          </View>
+
+          <View style={styles.summaryItem}>
+            
+            <Text style={styles.summaryLabel}>Cofrinho/Investimentos</Text>
+            
+            <Text style={styles.summaryValue}>
+              {dadosFinanceiros?.investimentosTotais ? `R$ ${dadosFinanceiros.investimentosTotais.toFixed(2).replace('.', ',')}` : 'R$ 0,00'}
+            </Text>
+
+          </View>
         </View>
       </View>
 
@@ -467,7 +646,7 @@ const styles = StyleSheet.create({
 
   dashboardContent: {
     paddingHorizontal: 20,
-    paddingTop: 40,
+    paddingTop: 20,
     paddingBottom: 100,
   },
 
@@ -587,10 +766,56 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#D0CEFF',
   },
-
-  quickActions: {
-    marginBottom: 30,
+    chartSection: {
+    marginTop: 10, // REDUZIDO de 20
+    marginBottom: 15, // REDUZIDO de 25
   },
+
+  // GRÁFICO E LEGENDA LADO A LADO
+  chartWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center', // Centraliza verticalmente
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+
+  // GRÁFICO MAIOR
+  pieChartContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // LEGENDA SIMPLES
+  legendContainer: {
+    paddingLeft: 15,
+    flex: 1,
+  },
+
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+
+  legendColor: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    marginRight: 10,
+  },
+
+  legendText: {
+    fontSize: 14,
+    color: '#0f248d',
+    fontWeight: 'bold',
+  },
+
+  // MARGEM MENOR para ações rápidas também
+  quickActions: {
+    marginTop: 10, // Adicionado para ficar mais próximo
+    marginBottom: 20, // REDUZIDO de 30
+  },
+
 
   sectionTitle: {
     fontSize: 20,
@@ -650,7 +875,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 5,
     borderBottomWidth: 1,
     borderBottomColor: '#0f248d',
   },
@@ -663,18 +888,7 @@ const styles = StyleSheet.create({
   summaryValue: {
     fontSize: 18,
     fontWeight: 'bold',
-  },
-
-  incomeValue: {
-    color: '#00d2a8',
-  },
-
-  expenseValue: {
-    color: '#F44336',
-  },
-
-  investmentValue: {
-    color: '#ee00ff',
+    color: 'rgb(245, 236, 236)'
   },
 
   categoriesSection: {
