@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect} from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Animated, Dimensions, Alert, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator} from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Animated, Dimensions, Alert, ScrollView, ActivityIndicator} from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -60,6 +60,7 @@ const telasSetup = [
 ];
 
 type RootStackParamList = {
+  MainTabs: undefined;
   Home: undefined;
   SetupInitial: undefined;
 };
@@ -84,7 +85,7 @@ export default function SetupInitial() {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
 
       Animated.timing(keyboardOffset, {
-        toValue: event.endCoordinates.height,
+        toValue: event.endCoordinates.height / 2,
         duration: 300,
         useNativeDriver: false,
       }).start();
@@ -351,11 +352,11 @@ export default function SetupInitial() {
 
     return (
     
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <View style={styles.container}>
 
       <View style={styles.header}>
         
-        <TouchableOpacity style={styles.botaoFechar} onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity style={styles.botaoFechar} onPress={() => navigation.navigate('MainTabs')}>
           <Text style={styles.botaoFecharTexto}>X</Text>
         </TouchableOpacity>
         
@@ -425,7 +426,7 @@ export default function SetupInitial() {
         </Animated.View>
       </ScrollView>
 
-      <Animated.View style={[ styles.botoesContainer, { bottom: Animated.add(keyboardOffset, new Animated.Value(20)) } ]}>
+      <Animated.View style={[ styles.botoesContainer, { bottom: Animated.add(keyboardOffset, new Animated.Value(0)) } ]}>
         
         {telaAtual > 0 && (
           
@@ -458,7 +459,7 @@ export default function SetupInitial() {
         </View>
         
       </Animated.View>
-    </KeyboardAvoidingView>
+    </View>
     );
 }
 

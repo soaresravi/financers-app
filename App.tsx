@@ -8,22 +8,28 @@ import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 
 import Login from './src/screens/Login';
 import Cadastro from './src/screens/Cadastro';
-import Home from './src/screens/Home';
+import TabNavigator from './src/screens/TabNavigator';
 import SetupInitial from './src/screens/SetupInitial';
 import AddIncome from './src/screens/AddIncome';
 import AddExpense from './src/screens/AddExpense';
 import AddInvestment from './src/screens/AddInvestment';
 import Categories from './src/screens/Categories';
+import Transactions from './src/screens/Transactions';
+import Goals from './src/screens/Goals';
+import Settings from './src/screens/Settings';
 
 export type RootStackParamList = {
   Login: undefined;
   Cadastro: undefined;
-  Home: undefined;
+  MainTabs: undefined;
   SetupInitial: undefined;
   AddIncome: undefined;
   AddExpense: undefined;
   AddInvestment: undefined;
   Categories: undefined;
+  Transactions: undefined;
+  Goals: undefined;
+  Settings: undefined;
 };
 
 const Stack = createNativeStackNavigator();
@@ -44,12 +50,15 @@ function AppNavigator() { //verifica se esta carregando os dados do usuario
 
       <>
         
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="MainTabs" component={TabNavigator} />
         <Stack.Screen name="SetupInitial" component={SetupInitial} />
         <Stack.Screen name="AddIncome" component={AddIncome} />
         <Stack.Screen name="AddExpense" component={AddExpense} />
         <Stack.Screen name="AddInvestment" component={AddInvestment} />
         <Stack.Screen name="Categories" component={Categories} />
+        <Stack.Screen name="Transactions" component={Transactions} />
+        <Stack.Screen name="Goals" component={Goals} />
+        <Stack.Screen name="Settings" component={Settings} />
 
       </>  
     

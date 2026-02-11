@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import Svg, { Circle, G, Path, Text as SvgText } from 'react-native-svg';
+import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
 
 import { useAuth } from '../contexts/AuthContext'; 
 import { db } from '../services/firebase';
@@ -12,6 +12,7 @@ import { collection, doc, getDoc, updateDoc, getDocs, query, where } from 'fireb
 import { useDateNavigation } from '../hooks/useDateNavigation';
 
 type RootStackParamList = {
+  MainTabs: undefined;
   Home: undefined;
   Login: undefined;
   SetupInitial: undefined;
@@ -218,11 +219,6 @@ export default function Home() {
   
   };
 
-  const handleLogout = async () => {
-    await signOut();
-    navigation.navigate('Login');
-  };
-
   const getPieChartData = (): PieChartItem[] => {
 
     const rendaTotal = dadosFinanceiros?.rendaTotal || 0;
@@ -333,8 +329,8 @@ export default function Home() {
           </View>
 
         </ScrollView>
-
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        
+        <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
           <Text style={styles.logoutButtonText}> Sair </Text>
         </TouchableOpacity>
 
@@ -380,69 +376,73 @@ export default function Home() {
         <Text style={styles.balanceSubtitle}>Disponível para gastar</Text>
 
       </View>
-      
-      <View style={styles.chartSection}>
+
+      {(dadosFinanceiros?.rendaTotal > 0 && (dadosFinanceiros?.despesasTotais > 0 || dadosFinanceiros?.investimentosTotais > 0)) && (
+
+        <View style={styles.chartSection}>
         
-        <Text style={styles.sectionTitle}>Distribuição financeira</Text>
+          <Text style={styles.sectionTitle}>Distribuição financeira</Text>
         
-        <View style={styles.chartWrapper}>
+          <View style={styles.chartWrapper}>
           
-          <View style={styles.pieChartContainer}>
+            <View style={styles.pieChartContainer}>
             
-            <Svg width={180} height={180}>
+              <Svg width={180} height={180}>
               
-              {(() => {
+                {(() => {
                 
-                const data = getPieChartData();
-                let currentAngle = 0;
+                  const data = getPieChartData();
+                  let currentAngle = 0;
                 
-                return data.map((item, index) => {
+                  return data.map((item, index) => {
                   
-                  if (item.percentage === 0) return null;
+                    if (item.percentage === 0) return null;
                   
-                  const angle = (item.percentage / 100) * 360;
-                  const coordinates = calculateCoordinates( currentAngle, currentAngle + angle, 80, 90 );
+                    const angle = (item.percentage / 100) * 360;
+                    const coordinates = calculateCoordinates( currentAngle, currentAngle + angle, 80, 90 );
                   
-                  currentAngle += angle;
+                    currentAngle += angle;
                   
-                  return (
-                  
-                  <G key={item.name}>
+                    return (
                     
-                    <Path d={coordinates.path} fill={item.color} stroke="#fff" strokeWidth="1" />
+                    <G key={item.name}>
                     
-                    {item.percentage > 5 && (
+                      <Path d={coordinates.path} fill={item.color} stroke="#fff" strokeWidth="1" />
+                    
+                      {item.percentage > 5 && (
                       
-                      <SvgText x={coordinates.textX} y={coordinates.textY} textAnchor="middle" fill="#FFFFFF" fontSize="12" fontWeight="bold"
-                      fontFamily="System"> {item.percentage}% </SvgText>
+                        <SvgText x={coordinates.textX} y={coordinates.textY} textAnchor="middle" fill="#FFFFFF" fontSize="12" fontWeight="bold"
+                        fontFamily="System"> {item.percentage}% </SvgText>
 
-                    )}
+                      )}
 
-                  </G>
-                );
-              });
+                    </G>
+                  );
+                });
 
-            })()}
-            </Svg>
+              })()}
+              </Svg>
+
+            </View>
+          
+            <View style={styles.legendContainer}>
+            
+              {getPieChartData().map((item) => (
+              
+                <View key={item.name} style={styles.legendItem}>  
+                  <View style={[styles.legendColor, { backgroundColor: item.color }]} />
+                  <Text style={styles.legendText}>{item.name}</Text>
+                </View>
+
+              ))}
+
+           </View>
 
           </View>
-          
-          <View style={styles.legendContainer}>
-            
-            {getPieChartData().map((item) => (
-              
-              <View key={item.name} style={styles.legendItem}>  
-                <View style={[styles.legendColor, { backgroundColor: item.color }]} />
-                <Text style={styles.legendText}>{item.name}</Text>
-              </View>
-
-            ))}
-
-         </View>
-
         </View>
-      </View>
 
+      )}
+      
       <View style={styles.quickActions}>
         
         <Text style={styles.sectionTitle}>Ações rápidas</Text>
@@ -524,7 +524,7 @@ export default function Home() {
         </View>
       </View>
 
-      <View style={styles.categoriesSection}>
+      <View>
        
         <View style={styles.sectionHeader}>
        
@@ -558,29 +558,6 @@ export default function Home() {
       </View>
     </ScrollView>
 
-    <View style={styles.bottomMenu}>
-      
-      <TouchableOpacity style={styles.menuItem}>
-        <Text style={styles.menuIcon}>📊</Text>
-        <Text style={styles.menuText}>Resumo</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.menuItem}>
-        <Text style={styles.menuIcon}>📝</Text>
-        <Text style={styles.menuText}>Transações</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.menuItem}>
-        <Text style={styles.menuIcon}>🎯</Text>
-        <Text style={styles.menuText}>Metas</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-        <Text style={styles.menuIcon}>⚙️</Text>
-        <Text style={styles.menuText}>Sair</Text>
-      </TouchableOpacity>
-
-    </View>
   </View>
 );
 }
@@ -766,26 +743,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#D0CEFF',
   },
-    chartSection: {
-    marginTop: 10, // REDUZIDO de 20
-    marginBottom: 15, // REDUZIDO de 25
+  
+  chartSection: {
+    marginTop: 10, 
+    marginBottom: 15,
   },
 
-  // GRÁFICO E LEGENDA LADO A LADO
   chartWrapper: {
     flexDirection: 'row',
-    alignItems: 'center', // Centraliza verticalmente
+    alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
   },
 
-  // GRÁFICO MAIOR
   pieChartContainer: {
     alignItems: 'center',
     justifyContent: 'center',
   },
 
-  // LEGENDA SIMPLES
   legendContainer: {
     paddingLeft: 15,
     flex: 1,
@@ -810,12 +785,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // MARGEM MENOR para ações rápidas também
   quickActions: {
-    marginTop: 10, // Adicionado para ficar mais próximo
-    marginBottom: 20, // REDUZIDO de 30
+    marginTop: 10,
+    marginBottom: 20, 
   },
-
 
   sectionTitle: {
     fontSize: 20,
@@ -891,10 +864,6 @@ const styles = StyleSheet.create({
     color: 'rgb(245, 236, 236)'
   },
 
-  categoriesSection: {
-    marginBottom: 30,
-  },
-
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -918,34 +887,6 @@ const styles = StyleSheet.create({
   categoryChipText: {
     color: 'white',
     fontSize: 14,
-  },
-
-  bottomMenu: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#dadafa',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 15,
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
-  },
-
-  menuItem: {
-    alignItems: 'center',
-  },
-
-  menuIcon: {
-    fontSize: 20,
-    color: '#0f248d',
-    marginBottom: 3,
-  },
-
-  menuText: {
-    color: '#0f248d',
-    fontSize: 12,
   },
 
   logoutButton: {
