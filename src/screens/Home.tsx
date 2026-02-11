@@ -377,7 +377,7 @@ export default function Home() {
 
       </View>
 
-      {(dadosFinanceiros?.rendaTotal > 0) && (
+      {(dadosFinanceiros?.rendaTotal > 0 && (dadosFinanceiros?.despesasTotais > 0 || dadosFinanceiros?.investimentosTotais > 0)) && (
 
         <View style={styles.chartSection}>
         

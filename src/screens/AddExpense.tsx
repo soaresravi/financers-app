@@ -17,7 +17,7 @@ type RootStackParamList = {
 
 type NavigationProps = NativeStackNavigationProp<RootStackParamList>;
 
-type ExpenseType = 'recorrente' | 'variavel';
+type ExpenseType = 'fixa' | 'variavel';
 
 interface Categoria {
   id: string;
@@ -408,8 +408,8 @@ export default function AddExpense() {
           
           <View style={styles.typeContainer}>
             
-            <TouchableOpacity style={[ styles.typeButton, formData.tipo === 'recorrente' && styles.typeButtonActive ]} onPress={() => handleChange('tipo', 'recorrente')}>
-              <Text style={[ styles.typeButtonText, formData.tipo === 'recorrente' && styles.typeButtonTextActive ]}> Recorrente </Text>
+            <TouchableOpacity style={[ styles.typeButton, formData.tipo === 'fixa' && styles.typeButtonActive ]} onPress={() => handleChange('tipo', 'fixa')}>
+              <Text style={[ styles.typeButtonText, formData.tipo === 'fixa' && styles.typeButtonTextActive ]}> Fixa </Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={[ styles.typeButton, formData.tipo === 'variavel' && styles.typeButtonActive ]} onPress={() => handleChange('tipo', 'variavel')}>
