@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect} from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Animated, Dimensions, Alert, ScrollView, ActivityIndicator} from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Animated, Dimensions, Alert, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform} from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -111,253 +111,255 @@ export default function SetupInitial() {
         keyboardDidHideListener.remove();
       };
 
-    }, []);
+    },
 
-    const formatarParaDinheiro = (text: string): string => {
+  []);
 
-      let numbers = text.replace(/\D/g, '');
+  const formatarParaDinheiro = (text: string): string => {
+
+    let numbers = text.replace(/\D/g, '');
         
-      if (numbers === '') return '';
+    if (numbers === '') return '';
         
-      const valor = parseInt(numbers, 10) / 100;
-      return valor.toFixed(2).replace('.', ',');
+    const valor = parseInt(numbers, 10) / 100;
+    return valor.toFixed(2).replace('.', ',');
 
-    };
+  };
 
-    const converterParaNumero = (valorFormatado: string): number => {
+  const converterParaNumero = (valorFormatado: string): number => {
 
-      if (!valorFormatado) return 0;
-      return parseFloat(valorFormatado.replace(',', '.')) || 0;
+    if (!valorFormatado) return 0;
+    return parseFloat(valorFormatado.replace(',', '.')) || 0;
     
-    };
+  };
 
-    const mudarValor = (chave: string, texto: string) => {
+  const mudarValor = (chave: string, texto: string) => {
 
-      const formatado = formatarParaDinheiro(texto);
+    const formatado = formatarParaDinheiro(texto);
 
-      setDados(prev => ({
-        ...prev, [chave]: formatado
-      }));
+    setDados(prev => ({
+      ...prev, [chave]: formatado
+    }));
     
-    };
+  };
 
-    const limparCampo = (chave: string) => {
+  const limparCampo = (chave: string) => {
       
-      setDados(prev => ({
-        ...prev, [chave]: ''
-      }));
+    setDados(prev => ({
+      ...prev, [chave]: ''
+    }));
     
-    };
+  };
 
-    const avancar = () => {
+  const avancar = () => {
       
-      if (telaAtual < telasSetup.length - 1) {
+    if (telaAtual < telasSetup.length - 1) {
 
-        Animated.timing(translateX, {
-          toValue: -(telaAtual + 1) * width,
-          duration: 300,
-          useNativeDriver: true,
-        }).start();
+      Animated.timing(translateX, {
+        toValue: -(telaAtual + 1) * width,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
 
-        setTelaAtual(telaAtual + 1);
+      setTelaAtual(telaAtual + 1);
 
-        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
 
-      }
+    }
       
-    };
+  };
 
-    const voltar = () => {
+  const voltar = () => {
         
-      if (telaAtual > 0) {
+    if (telaAtual > 0) {
 
-        Animated.timing(translateX, {
-          toValue: -(telaAtual - 1) * width,
-          duration: 300,
-          useNativeDriver: true,
-        }).start();
+      Animated.timing(translateX, {
+        toValue: -(telaAtual - 1) * width,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
 
-        setTelaAtual(telaAtual - 1);
+      setTelaAtual(telaAtual - 1);
 
-        scrollViewRef.current?.scrollTo({ y: 0, animated: true});
-      
-      }
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true});
     
-    };
+    }
+    
+  };
 
-    const salvarSetupCompleto = async () => {
+  const salvarSetupCompleto = async () => {
 
-      if (!user?.uid) {
-        Alert.alert('Erro', 'Usuário não identificado');
-        return;
-      }
+    if (!user?.uid) {
+      Alert.alert('Erro', 'Usuário não identificado');
+      return;
+    }
 
-      setIsLoading(true);
+    setIsLoading(true);
 
-      try {
+    try {
 
-        await updateDoc(doc(db, 'users', user.uid), { //atualiza o usuario (marca q fez setup)
-          initialSetup: true,
-          setupCompleted: new Date(),
-          lastUpdated: new Date()
-        });
+      await updateDoc(doc(db, 'users', user.uid), { //atualiza o usuario (marca q fez setup)
+        initialSetup: true,
+        setupCompleted: new Date(),
+        lastUpdated: new Date()
+      });
 
-        const rendasRef = collection(db, 'users', user.uid, 'rendas'); //salva rendas na subcoleção
+      const rendasRef = collection(db, 'users', user.uid, 'rendas'); //salva rendas na subcoleção
 
-        if (dados.rendaRecorrente && converterParaNumero(dados.rendaRecorrente) > 0) {
+      if (dados.rendaRecorrente && converterParaNumero(dados.rendaRecorrente) > 0) {
 
-          await addDoc(rendasRef, {
+        await addDoc(rendasRef, {
             
-            userId: user.uid,
-            tipo: 'recorrente',
-            valor: converterParaNumero(dados.rendaRecorrente),
-            descricao: 'Renda recorrente',
-            categoria: 'Salário',
-            data: new Date(),
-            criadoEm: new Date(),
-            mes: new Date().getMonth() + 1,
-            ano: new Date().getFullYear()
+          userId: user.uid,
+          tipo: 'recorrente',
+          valor: converterParaNumero(dados.rendaRecorrente),
+          descricao: 'Renda recorrente',
+          categoria: 'Salário',
+          data: new Date(),
+          criadoEm: new Date(),
+          mes: new Date().getMonth() + 1,
+          ano: new Date().getFullYear()
           
-          });
-        }
+        });
+      }
 
-        if (dados.rendaExtra && converterParaNumero(dados.rendaExtra) > 0) {
+      if (dados.rendaExtra && converterParaNumero(dados.rendaExtra) > 0) {
 
-          await addDoc(rendasRef, {
+        await addDoc(rendasRef, {
 
-            userId: user.uid,
-            tipo: 'extra',
-            valor: converterParaNumero(dados.rendaExtra),
-            descricao: 'Renda extra',
-            categoria: 'Extra',
-            data: new Date(),
-            criadoEm: new Date(),
-            mes: new Date().getMonth() + 1,
-            ano: new Date().getFullYear()
+          userId: user.uid,
+          tipo: 'extra',
+          valor: converterParaNumero(dados.rendaExtra),
+          descricao: 'Renda extra',
+          categoria: 'Extra',
+          data: new Date(),
+          criadoEm: new Date(),
+          mes: new Date().getMonth() + 1,
+          ano: new Date().getFullYear()
           
-          });
+        });
           
-        }
+      }
 
-        const despesasRef = collection(db, 'users', user.uid, 'despesas');
+      const despesasRef = collection(db, 'users', user.uid, 'despesas');
 
-        const despesasFixas = [ //salva despesas (subcoleçao: despesas)
+      const despesasFixas = [ //salva despesas (subcoleçao: despesas)
           
-          { key: 'moradia', desc: 'Moradia/Aluguel', cat: 'Moradia'},
-          { key: 'energia', desc: 'Energia', cat: 'Energia'},
-          { key: 'agua', desc: 'Água', cat: 'Água'},
-          { key: 'comunicacao', desc: 'Internet', cat: 'Comunicação'}
+        { key: 'moradia', desc: 'Moradia/Aluguel', cat: 'Moradia'},
+        { key: 'energia', desc: 'Energia', cat: 'Energia'},
+        { key: 'agua', desc: 'Água', cat: 'Água'},
+        { key: 'comunicacao', desc: 'Internet', cat: 'Comunicação'}
         
-        ];
+      ];
 
-        for (const despesa of despesasFixas) {
+      for (const despesa of despesasFixas) {
 
-          if (dados[despesa.key] && converterParaNumero(dados[despesa.key]) > 0) {
+        if (dados[despesa.key] && converterParaNumero(dados[despesa.key]) > 0) {
 
-            await addDoc(despesasRef, {
+          await addDoc(despesasRef, {
               
-              userId: user.uid,
-              tipo: 'fixa',
-              valor: converterParaNumero(dados[despesa.key]),
-              descricao: despesa.desc,
-              categoria: despesa.cat,
-              recorrente: true,
-              data: new Date(),
-              criadoEm: new Date(),
-              mes: new Date().getMonth() + 1,
-              ano: new Date().getFullYear()
+            userId: user.uid,
+            tipo: 'fixa',
+            valor: converterParaNumero(dados[despesa.key]),
+            descricao: despesa.desc,
+            categoria: despesa.cat,
+            recorrente: true,
+            data: new Date(),
+            criadoEm: new Date(),
+            mes: new Date().getMonth() + 1,
+            ano: new Date().getFullYear()
            
-            });
+          });
 
-          }
         }
-
-        const despesasVariaveis = [ 
-       
-          { key: 'alimentacao', desc: 'Mercado', cat: 'Mercado'},
-          { key: 'gas', desc: 'Gás', cat: 'gas' },
-          { key: 'lazer', desc: 'Lazer', cat: 'Lazer' }
-       
-        ];
-
-        for (const despesa of despesasVariaveis) {
-
-          if (dados[despesa.key] && converterParaNumero(dados[despesa.key]) > 0) {
-            
-            await addDoc(despesasRef, {
-              
-              userId: user.uid,
-              tipo: 'variavel',
-              valor: converterParaNumero(dados[despesa.key]),
-              descricao: despesa.desc,
-              categoria: despesa.cat,
-              recorrente: false,
-              data: new Date(),
-              criadoEm: new Date(),
-              mes: new Date().getMonth() + 1,
-              ano: new Date().getFullYear()
-            
-            });
-
-          }
-        }
-
-        const investimentosRef = collection(db, 'users', user.uid, 'investimentos');
-
-        const investimentos = [
-
-          { key: 'reservaEmergencia', desc: 'Reserva de emergência', cat: 'Reserva'},
-          { key: 'outrasMetas', desc: 'Outras metas', cat: 'Metas' }
-
-        ];
-
-        for (const investimento of investimentos) {
-
-          if (dados[investimento.key] && converterParaNumero(dados[investimento.key]) > 0) {
-
-            await addDoc(investimentosRef, {
-
-              userId: user.uid,
-              valor: converterParaNumero(dados[investimento.key]),
-              descricao: investimento.desc,
-              categoria: investimento.cat,
-              meta: investimento.desc,
-              data: new Date(),
-              criadoEm: new Date(),
-              mes: new Date().getMonth() + 1,
-              ano: new Date().getFullYear()
-
-            });
-
-          }
-        }
-
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Home' }]
-        });
-
-      } catch (error) {
-        
-        console.error('Erro ao salvar setup:', error);
-        Alert.alert('Erro', 'Não foi possível salvar as configurações');
-     
-      } finally {
-        setIsLoading(false);
       }
-    
-    };
 
-    const progresso = ((telaAtual + 1) / telasSetup.length) * 100;
+      const despesasVariaveis = [ 
+       
+        { key: 'alimentacao', desc: 'Mercado', cat: 'Mercado'},
+        { key: 'gas', desc: 'Gás', cat: 'gas' },
+        { key: 'lazer', desc: 'Lazer', cat: 'Lazer' }
+       
+      ];
 
-    return (
+      for (const despesa of despesasVariaveis) {
+
+        if (dados[despesa.key] && converterParaNumero(dados[despesa.key]) > 0) {
+            
+          await addDoc(despesasRef, {
+              
+            userId: user.uid,
+            tipo: 'variavel',
+            valor: converterParaNumero(dados[despesa.key]),
+            descricao: despesa.desc,
+            categoria: despesa.cat,
+            recorrente: false,
+            data: new Date(),
+            criadoEm: new Date(),
+            mes: new Date().getMonth() + 1,
+            ano: new Date().getFullYear()
+            
+          });
+
+        }
+      }
+
+      const investimentosRef = collection(db, 'users', user.uid, 'investimentos');
+
+      const investimentos = [
+
+        { key: 'reservaEmergencia', desc: 'Reserva de emergência', cat: 'Reserva'},
+        { key: 'outrasMetas', desc: 'Outras metas', cat: 'Metas' }
+
+      ];
+
+      for (const investimento of investimentos) {
+
+        if (dados[investimento.key] && converterParaNumero(dados[investimento.key]) > 0) {
+
+          await addDoc(investimentosRef, {
+
+            userId: user.uid,
+            valor: converterParaNumero(dados[investimento.key]),
+            descricao: investimento.desc,
+            categoria: investimento.cat,
+            meta: investimento.desc,
+            data: new Date(),
+            criadoEm: new Date(),
+            mes: new Date().getMonth() + 1,
+            ano: new Date().getFullYear()
+
+          });
+
+        }
+      }
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }]
+      });
+
+    } catch (error) {
+        
+      console.error('Erro ao salvar setup:', error);
+      Alert.alert('Erro', 'Não foi possível salvar as configurações');
+     
+    } finally {
+      setIsLoading(false);
+    }
     
-    <View style={styles.container}>
+  };
+
+  const progresso = ((telaAtual + 1) / telasSetup.length) * 100;
+
+  return (
+    
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
 
       <View style={styles.header}>
         
         <TouchableOpacity style={styles.botaoFechar} onPress={() => navigation.navigate('MainTabs')}>
-          <Text style={styles.botaoFecharTexto}>X</Text>
+          <Text style={styles.botaoFecharTexto}>✕</Text>
         </TouchableOpacity>
         
         <View style={styles.progressoContainer}>
@@ -410,12 +412,12 @@ export default function SetupInitial() {
                  
                     <View style={styles.resumoLinha}>
                         
-                        <Text style={styles.resumoLabel}>Total mensal:</Text>
+                      <Text style={styles.resumoLabel}>Total mensal:</Text>
 
-                        <Text style={styles.resumoValor}> R$ {(
-                            converterParaNumero(dados.rendaRecorrente) + 
-                            converterParaNumero(dados.rendaExtra)
-                        ).toFixed(2).replace('.', ',')} </Text>
+                      <Text style={styles.resumoValor}> R$ {(
+                        converterParaNumero(dados.rendaRecorrente) + 
+                        converterParaNumero(dados.rendaExtra)
+                      ).toFixed(2).replace('.', ',')} </Text>
 
                     </View>
                   </View>
@@ -426,7 +428,7 @@ export default function SetupInitial() {
         </Animated.View>
       </ScrollView>
 
-      <Animated.View style={[ styles.botoesContainer, { bottom: Animated.add(keyboardOffset, new Animated.Value(0)) } ]}>
+      <Animated.View style={[ styles.botoesContainer, { bottom: Animated.add(keyboardOffset, new Animated.Value(20)) } ]}>
         
         {telaAtual > 0 && (
           
@@ -459,8 +461,8 @@ export default function SetupInitial() {
         </View>
         
       </Animated.View>
-    </View>
-    );
+    </KeyboardAvoidingView>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -486,7 +488,6 @@ const styles = StyleSheet.create({
   botaoFecharTexto: {
     color: '#0f248d',
     fontSize: 26,
-    fontWeight: 'bold',
   },
 
   progressoContainer: {
@@ -525,7 +526,7 @@ const styles = StyleSheet.create({
 
   tituloTela: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Alatsi_400Regular',
     color: '#0f248d',
     marginBottom: 8,
   },
@@ -534,6 +535,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#0f248d',
     marginBottom: 30,
+    fontFamily: 'Cabin_400Regular'
   },
 
   campoContainer: {
@@ -542,7 +544,7 @@ const styles = StyleSheet.create({
 
   campoLabel: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Cabin_700Bold',
     color: '#0f248d',
     marginBottom: 8,
   },
@@ -558,8 +560,8 @@ const styles = StyleSheet.create({
   },
 
   currencySymbol: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontFamily: 'Alatsi_400Regular',
     color: '#221377',
     marginRight: 5,
   },
@@ -569,6 +571,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     paddingVertical: 12,
     color: '#221377',
+    fontFamily: 'Inter_400Regular'
   },
   
   botaoLimpar: {
@@ -586,8 +589,8 @@ const styles = StyleSheet.create({
 
   botaoLimparTexto: {
     color: '#0f248d',
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontFamily: 'Cabin_400Regular'
   },
 
   resumoCard: {
@@ -599,7 +602,7 @@ const styles = StyleSheet.create({
 
   resumoTitulo: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'Cabin_700Bold',
     color: '#FFF',
     marginBottom: 10,
   },
@@ -613,11 +616,12 @@ const styles = StyleSheet.create({
   resumoLabel: {
     fontSize: 14,
     color: '#D0CEFF',
+    fontFamily: 'Inter_400Regular'
   },
 
   resumoValor: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontFamily: 'Alatsi_400Regular',
     color: '#FFF',
   },
 
@@ -644,6 +648,7 @@ const styles = StyleSheet.create({
   botaoVoltarTexto: {
     color: '#FFF',
     fontSize: 20,
+    fontFamily: 'Inter_400Regular'
   },
 
   botaoAvancar: {
@@ -657,7 +662,7 @@ const styles = StyleSheet.create({
   botaoAvancarTexto: {
     color: '#FFF',
     fontSize: 25,
-    fontWeight: '600',
+    fontFamily: 'Alatsi_400Regular'
   },
 
   botaoDesabilitado: {

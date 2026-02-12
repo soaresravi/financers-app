@@ -251,10 +251,6 @@ export default function Categories() {
 
         )}
 
-        {item.criadoEm && (
-            <Text style={styles.categoriaData}> Criada em: {formatarData(item.criadoEm)} </Text>
-        )}
-
       </View>
       
       {item.personalizada && (
@@ -405,7 +401,7 @@ export default function Categories() {
                 <TouchableOpacity style={[ styles.tipoButton, novaCategoriaTipo === 'despesa' && styles.tipoButtonActive ]} onPress={() =>
                 setNovaCategoriaTipo('despesa')}>
                     
-                    <Text style={[ styles.tipoButtonText, novaCategoriaTipo === 'despesa' && styles.tipoButtonTextActive ]}>Despesa </Text>
+                  <Text style={[ styles.tipoButtonText, novaCategoriaTipo === 'despesa' && styles.tipoButtonTextActive ]}>Despesa </Text>
                 
                 </TouchableOpacity>
 
@@ -428,7 +424,7 @@ export default function Categories() {
               <TouchableOpacity style={[ styles.modalConfirmButton, !novaCategoriaNome.trim() && styles.modalConfirmButtonDisabled ]} onPress=
               {criarNovaCategoria} disabled={!novaCategoriaNome.trim()}>
 
-                <Text style={styles.modalConfirmText}>Criar Categoria</Text>
+                <Text style={styles.modalConfirmText}>Criar categoria</Text>
 
               </TouchableOpacity>
 
@@ -507,13 +503,13 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#FFF',
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Inter_400Regular'
   },
 
   title: {
     color: '#FFF',
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: 'Alatsi_400Regular'
   },
   
   addButton: {
@@ -544,15 +540,16 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontFamily: 'Alatsi_400Regular',
     color: '#0f248d',
   },
   
   sectionSubtitle: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#666',
     marginBottom: 15,
+    fontFamily: 'Cabin_400Regular'
   },
 
   novaTransacaoButton: {
@@ -565,7 +562,7 @@ const styles = StyleSheet.create({
   novaTransacaoText: {
     color: '#FFF',
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'Cabin_700Bold'
   },
 
   categoriasList: {
@@ -585,9 +582,9 @@ const styles = StyleSheet.create({
   },
 
   categoriaCardNome: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#333',
-    fontWeight: '500',
+    fontFamily: 'Cabin_400Regular',
     textAlign: 'center',
     marginBottom: 5,
   },
@@ -600,6 +597,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 10,
     alignSelf: 'center',
+    fontFamily: 'Inter_400Regular'
   },
 
   categoriaItem: {
@@ -626,7 +624,7 @@ const styles = StyleSheet.create({
   categoriaNome: {
     fontSize: 16,
     color: '#333',
-    fontWeight: '500',
+    fontFamily: 'Cabin_400Regular',
     marginBottom: 5,
   },
 
@@ -684,8 +682,8 @@ const styles = StyleSheet.create({
   },
 
   modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontFamily: 'Alatsi_400Regular',
     color: '#0f248d',
   },
 
@@ -706,7 +704,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     marginBottom: 8,
-    fontWeight: '500',
+    fontFamily: 'Cabin_700Bold'
   },
 
   modalInput: {
@@ -718,6 +716,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0E0FF',
     marginBottom: 20,
+    fontFamily: 'Inter_400Regular'
   },
 
   tipoButtons: {
@@ -741,9 +740,9 @@ const styles = StyleSheet.create({
   },
 
   tipoButtonText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#666',
-    fontWeight: '500',
+    fontFamily: 'Cabin_700Bold'
   },
 
   tipoButtonTextActive: {
@@ -769,7 +768,7 @@ const styles = StyleSheet.create({
   modalCancelText: {
     color: '#666',
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Cabin_700Bold'
   },
 
   modalConfirmButton: {
@@ -787,7 +786,7 @@ const styles = StyleSheet.create({
   modalConfirmText: {
     color: '#FFF',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'Cabin_700Bold'
   },
 
   deleteModalOverlay: {
@@ -807,8 +806,8 @@ const styles = StyleSheet.create({
   },
 
   deleteModalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontFamily: 'Alatsi_400Regular',
     color: '#F44336',
     marginBottom: 15,
   },
@@ -818,11 +817,12 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
     marginBottom: 5,
+    fontFamily: 'Cabin_400Regular'
   },
 
   deleteModalCategoriaNome: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontFamily: 'Cabin_700Bold',
     color: '#0f248d',
     textAlign: 'center',
     marginBottom: 20,
@@ -831,7 +831,7 @@ const styles = StyleSheet.create({
   deleteModalWarning: {
     fontSize: 14,
     color: '#F44336',
-    fontWeight: '500',
+    fontFamily: 'Cabin_400Regular',
     marginBottom: 25,
     textAlign: 'center',
   },
@@ -852,8 +852,8 @@ const styles = StyleSheet.create({
 
   deleteModalCancelText: {
     color: '#666',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontFamily: 'Cabin_700Bold'
   },
   
   deleteModalConfirmButton: {
@@ -866,8 +866,8 @@ const styles = StyleSheet.create({
 
   deleteModalConfirmText: {
     color: '#FFF',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontFamily: 'Cabin_700Bold'
   },
 
 });

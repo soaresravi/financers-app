@@ -131,7 +131,7 @@ export default function Cadastro() {
           value={formData.name} onChangeText={(text) => handleChange('name', text)} onBlur={() => validateField('name', formData.name)} />
           
           {errors.name ?
-              <Text style={styles.errorText}> {errors.name} </Text>
+            <Text style={styles.errorText}> {errors.name} </Text>
           : null }
 
         </View>
@@ -145,7 +145,7 @@ export default function Cadastro() {
           keyboardType='email-address' autoCapitalize='none' />
 
           {errors.email ?
-              <Text style={styles.errorText}> {errors.email} </Text>
+            <Text style={styles.errorText}> {errors.email} </Text>
           : null }
         
         </View>
@@ -167,7 +167,7 @@ export default function Cadastro() {
           </View>
 
           {errors.password ?
-              <Text style={styles.errorText}> {errors.password} </Text>
+            <Text style={styles.errorText}> {errors.password} </Text>
           : null }
 
         </View>
@@ -189,7 +189,7 @@ export default function Cadastro() {
           </View>
 
           {errors.confirmPassword ?
-              <Text style={styles.errorText}> {errors.confirmPassword} </Text>
+            <Text style={styles.errorText}> {errors.confirmPassword} </Text>
           : null }
 
         </View>
@@ -239,8 +239,8 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: 34,
+    fontFamily: 'Alatsi_400Regular',
     color: '#0f248d',
     marginBottom: 8,
   },
@@ -254,8 +254,8 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontFamily: 'Cabin_700Bold',
     color: '#0f248d',
     marginBottom: 8,
   },
@@ -268,6 +268,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 2,
     borderColor: '#aab3ff',
+    fontFamily: 'Inter_400Regular'
   },
 
   inputError: {
@@ -280,6 +281,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 4,
     marginLeft: 5,
+    fontFamily: 'Inter_400Regular'
   },
 
   passwordContainer: {
@@ -315,8 +317,8 @@ const styles = StyleSheet.create({
 
   buttonText: {
     color: '#FFF',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontFamily: 'Cabin_700Bold'
   },
   
   loginLink: {
@@ -328,11 +330,12 @@ const styles = StyleSheet.create({
   loginText: {
     color: '#4b5ff5',
     fontSize: 17,
+    fontFamily: 'Cabin_400Regular'
   },
 
   loginLinkText: {
     color: '#0f248d',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontFamily: 'Cabin_700Bold'
   },
 })

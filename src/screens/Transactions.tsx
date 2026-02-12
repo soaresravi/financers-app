@@ -543,7 +543,7 @@ export default function Transactions() {
   };
   
   const formatarValor = (valor: number) => {
-     return `R$ ${Math.abs(valor).toFixed(2).replace('.', ',')}`;
+    return `R$ ${Math.abs(valor).toFixed(2).replace('.', ',')}`;
   };
 
   const handleValorChange = (campo: 'valorPrevisto' | 'valorReal', text: string) => {
@@ -729,8 +729,8 @@ export default function Transactions() {
             
             <View style={styles.modalHeaderEdit}>
               
-              <Text style={styles.modalTitleEdit}> Editar {transacaoParaEditar?.tipo === 'renda' ? 'Renda' : transacaoParaEditar?.tipo
-              === 'despesa' ? 'Despesa' : 'Investimento'} </Text>
+              <Text style={styles.modalTitleEdit}> Editar {transacaoParaEditar?.tipo === 'renda' ? 'renda' : transacaoParaEditar?.tipo
+              === 'despesa' ? 'despesa' : 'investimento'} </Text>
               
               <TouchableOpacity onPress={() => { setShowEditModal(false); setTransacaoParaEditar(null); setNovaCategoria(''); }}>
                 <Text style={styles.modalCloseTextEdit}>✕</Text>
@@ -856,7 +856,7 @@ export default function Transactions() {
                 
                 <View style={[styles.editInputGroup, styles.editInputHalf]}>
                   
-                  <Text style={styles.editLabel}>Data Real</Text>
+                  <Text style={styles.editLabel}>Data real</Text>
                   
                   <TouchableOpacity style={styles.dateButtonEdit} onPress={() => setMostrarPickerDataReal(true)}>
                     <Text style={styles.dateButtonTextEdit}> {editForm.dataReal ? editForm.dataReal.toLocaleDateString('pt-BR') : 'Selecionar'} </Text>
@@ -974,6 +974,7 @@ const styles = StyleSheet.create({
     color: '#0f248d',
     marginTop: 10,
     fontSize: 16,
+    fontFamily: 'Alatsi_400Regular'
   },
 
   header: {
@@ -984,7 +985,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'Alatsi_400Regular',
     color: '#0f248d',
     marginBottom: 5,
   },
@@ -992,6 +993,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: '#0f248d',
+    fontFamily: 'Cabin_400Regular'
   },
 
   filtrosContainer: {
@@ -1019,7 +1021,7 @@ const styles = StyleSheet.create({
   filtroTipoText: {
     fontSize: 12,
     color: '#0f248d',
-    fontWeight: '600',
+    fontFamily: 'Cabin_700Bold'
   },
 
   filtroTipoTextAtivo: {
@@ -1039,6 +1041,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: '#0f248d',
+    fontFamily: 'Inter_400Regular'
   },
 
   buscaClear: {
@@ -1065,8 +1068,8 @@ const styles = StyleSheet.create({
   },
 
   cabecalhoData: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontFamily: 'Cabin_700Bold',
     color: '#0f248d',
   },
   
@@ -1078,8 +1081,8 @@ const styles = StyleSheet.create({
   },
 
   cabecalhoTotal: {
-    fontSize: 12,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontFamily: 'Alatsi_400Regular'
   },
 
   totalPositivo: {
@@ -1125,9 +1128,9 @@ const styles = StyleSheet.create({
 
   transacaoNome: {
     fontSize: 14,
-    fontWeight: '600',
     color: '#0f248d',
     marginBottom: 4,
+    fontFamily: 'Alatsi_400Regular'
   },
 
   transacaoDetalhes: {
@@ -1139,22 +1142,26 @@ const styles = StyleSheet.create({
   transacaoCategoria: {
     fontSize: 12,
     color: '#0f248d',
+    fontFamily: 'Cabin_400Regular'
   },
 
   transacaoSeparador: {
     fontSize: 12,
     color: '#0f248d',
+    fontFamily: 'Cabin_400Regular'
   },
 
   transacaoTipo: {
-    fontSize: 12,
-    color: '#0f248d',
+    fontSize: 10,
+    color: '#496DC7',
+    fontFamily: 'Inter_700Bold'
   },
 
   transacaoHora: {
     fontSize: 12,
     color: '#999',
-    marginLeft: 5
+    marginLeft: 5,
+    fontFamily: 'Cabin_400Regular'
   },
 
   transacaoValorContainer: {
@@ -1163,7 +1170,7 @@ const styles = StyleSheet.create({
 
   transacaoValor: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontFamily: 'Alatsi_400Regular'
   },
 
   valorPositivo: {
@@ -1209,7 +1216,7 @@ const styles = StyleSheet.create({
 
   emptyTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: 'Cabin_700Bold',
     color: '#0f248d',
     marginBottom: 10,
     textAlign: 'center',
@@ -1220,6 +1227,7 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     lineHeight: 20,
+    fontFamily: 'Cabin_400Regular'
   },
 
   modalOverlay: {
@@ -1238,31 +1246,33 @@ const styles = StyleSheet.create({
   },
 
   modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontFamily: 'Alatsi_400Regular',
     color: '#0f248d',
     marginBottom: 15,
   },
 
   modalText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#0f248d',
     textAlign: 'center',
     marginBottom: 5,
+    fontFamily: 'Cabin_400Regular'
   },
 
   modalNome: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontFamily: 'Inter_700Bold',
     color: '#0f248d',
     textAlign: 'center',
     marginBottom: 15,
   },
 
   modalWarning: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#F44336',
     marginBottom: 20,
+    fontFamily: 'Cabin_400Regular'
   },
 
   modalButtons: {
@@ -1283,7 +1293,7 @@ const styles = StyleSheet.create({
   modalCancelText: {
     fontSize: 14,
     color: '#FFF',
-    fontWeight: '600',
+    fontFamily: 'Cabin_700Bold'
   },
 
   modalConfirmButton: {
@@ -1296,9 +1306,9 @@ const styles = StyleSheet.create({
   },
 
   modalConfirmText: {
-    fontSize: 14,
+    fontSize: 18,
     color: '#666',
-    fontWeight: '600',
+    fontFamily: 'Cabin_700Bold'
   },
 
   modalOverlayEdit: {
@@ -1324,8 +1334,8 @@ const styles = StyleSheet.create({
   },
 
   modalTitleEdit: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontFamily: 'Alatsi_400Regular',
     color: '#0f248d',
   },
 
@@ -1347,7 +1357,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     marginBottom: 8,
-    fontWeight: '500',
+    fontFamily: 'Cabin_700Bold'
   },
 
   editInput: {
@@ -1358,6 +1368,7 @@ const styles = StyleSheet.create({
     color: '#333',
     borderWidth: 1,
     borderColor: '#aab3ff',
+    fontFamily: 'Inter_400Regular'
   },
 
   typeContainer: {
@@ -1383,7 +1394,7 @@ const styles = StyleSheet.create({
   typeButtonText: {
     fontSize: 16,
     color: '#666',
-    fontWeight: '500',
+    fontFamily: 'Cabin_700Bold'
   },
 
   typeButtonTextActive: {
@@ -1398,6 +1409,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginBottom: 8,
+    fontFamily: 'Inter_400Regular'
   },
 
   sugestoesScroll: {
@@ -1422,6 +1434,7 @@ const styles = StyleSheet.create({
   sugestaoChipText: {
     fontSize: 14,
     color: '#0f248d',
+    fontFamily: 'Cabin_400Regular'
   },
 
   sugestaoChipTextAtiva: {
@@ -1449,6 +1462,7 @@ const styles = StyleSheet.create({
   dateButtonTextEdit: {
     fontSize: 16,
     color: '#333',
+    fontFamily: 'Inter_400Regular'
   },
 
   inputWithCurrencyEdit: {
@@ -1464,7 +1478,7 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     fontSize: 16,
     color: '#333',
-    fontWeight: '500',
+    fontFamily: 'Cabin_700Bold'
   },
 
   editInputWithCurrency: {
@@ -1473,6 +1487,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     borderWidth: 0,
+    fontFamily: 'Alatsi_400Regular'
   },
 
   editButtonsContainer: {
@@ -1495,9 +1510,9 @@ const styles = StyleSheet.create({
   },
 
   editButtonTextSave: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#FFF',
-    fontWeight: 'bold',
+    fontFamily: 'Cabin_700Bold'
   },
   
   previstoContainer: {
@@ -1510,7 +1525,7 @@ const styles = StyleSheet.create({
   previstoText: {
     fontSize: 10,
     color: '#FF9800',
-    fontWeight: '600',
+    fontFamily: 'Inter_700Bold'
   },
   
   valorPrevisto: {

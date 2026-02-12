@@ -115,7 +115,7 @@ export default function Login() {
             keyboardType='email-address' autoCapitalize='none' autoComplete='email' />
 
             {errors.email ?
-                <Text style={styles.errorText}> {errors.email} </Text>
+              <Text style={styles.errorText}> {errors.email} </Text>
             : null }
 
           </View>
@@ -137,7 +137,7 @@ export default function Login() {
             </View>
 
             {errors.password ?
-                <Text style={styles.errorText}> {errors.password} </Text>
+              <Text style={styles.errorText}> {errors.password} </Text>
             : null }
 
           </View>
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 48,
-    fontWeight: 'bold',
+    fontFamily: 'Alatsi_400Regular',
     color: '#0f248d',
     marginBottom: 10,
   },
@@ -207,8 +207,8 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontFamily: 'Cabin_700Bold',
     color: '#0f248d',
     marginBottom: 8,
   },
@@ -221,6 +221,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 2,
     borderColor: '#aab3ff',
+    fontFamily: 'Inter_400Regular'
   },
 
   inputError: {
@@ -233,6 +234,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 4,
     marginLeft: 5,
+    fontFamily: 'Inter_400Regular'
   },
 
   passwordContainer: {
@@ -260,7 +262,8 @@ const styles = StyleSheet.create({
 
   forgotPasswordText: {
     color: '#0f248d',
-    fontSize: 14,
+    fontSize: 15,
+    fontFamily: 'Cabin_400Regular'
   },
 
   button: {
@@ -278,8 +281,8 @@ const styles = StyleSheet.create({
 
   buttonText: {
     color: '#FFF',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontFamily: 'Cabin_700Bold'
   },
 
   divider: {
@@ -297,7 +300,8 @@ const styles = StyleSheet.create({
   dividerText: {
     color: '#0f248d',
     marginHorizontal: 15,
-    fontSize: 14,
+    fontSize: 16,
+    fontFamily: 'Cabin_400Regular'
   },
 
   secondaryButton: {
@@ -307,8 +311,8 @@ const styles = StyleSheet.create({
 
   secondaryButtonText: {
     color: '#0f248d',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontFamily: 'Cabin_700Bold'
   },
 
 });
