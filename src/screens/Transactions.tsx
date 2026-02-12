@@ -76,6 +76,25 @@ export default function Transactions() {
   const [mostrarPickerDataPrevista, setMostrarPickerDataPrevista] = useState(false);
   const [mostrarPickerDataReal, setMostrarPickerDataReal] = useState(false);
 
+  const [showFiltroAvancado, setShowFiltroAvancado] = useState(false);
+  const [filtroPeriodo, setFiltroPeriodo] = useState<'todos' | 'hoje' | 'mes' | 'ano' | 'personalizado'>('todos');
+  const [anoSelecionado, setAnoSelecionado] = useState(new Date().getFullYear());
+  const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth() + 1);
+  const [diaSelecionado, setDiaSelecionado] = useState(new Date().getDate());
+  const [dataInicioPersonalizada, setDataInicioPersonalizada] = useState<Date | null>(null);
+  const [dataFimPersonalizada, setDataFimPersonalizada] = useState<Date | null>(null);
+  const [showDatePickerInicio, setShowDatePickerInicio] = useState(false);
+  const [showDatePickerFim, setShowDatePickerFim] = useState(false);
+
+  const meses = [ 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+  const anos = [
+    new Date().getFullYear() -2,
+    new Date().getFullYear() -1,
+    new Date().getFullYear(),
+    new Date().getFullYear() +1
+  ];
+
   const [editForm, setEditForm] = useState({
     nome: '',
     subtipo: '',
@@ -262,6 +281,31 @@ export default function Transactions() {
     });
 
   }, [obterDataTransacao]);
+
+  const filtrarPorPeriodo = (transacao: Transacao): boolean => {
+
+    const dataTransacao = obterDataTransacao(transacao);
+    const hoje = new Date();
+
+    switch (filtroPeriodo) {
+
+      case 'hoje': return dataTransacao.toDateString() === hoje.toDateString();
+      case 'mes': return dataTransacao.getMonth() + 1 === mesSelecionado && dataTransacao.getFullYear() === anoSelecionado;
+      case 'ano': return dataTransacao.getFullYear() === anoSelecionado;
+     
+      case 'personalizado':
+
+        if (dataInicioPersonalizada && dataFimPersonalizada) {
+          return dataTransacao >= dataInicioPersonalizada && dataTransacao <= dataFimPersonalizada;
+        }
+
+        return true;
+      
+      default: return true;
+
+    }
+    
+  };
   
   useEffect(() => {
     
@@ -276,6 +320,10 @@ export default function Transactions() {
 
     if (filtroTipo !== 'todos') {
       transacoesFiltradasTemp = transacoesFiltradasTemp.filter( t => t.tipo === filtroTipo );
+    }
+
+    if (filtroPeriodo !== 'todos') {
+      transacoesFiltradasTemp = transacoesFiltradasTemp.filter(filtrarPorPeriodo);
     }
 
     if (busca.trim()) {
@@ -295,7 +343,7 @@ export default function Transactions() {
 
     setTransacoesFiltradas(resultados);
 
-  }, [filtroTipo, busca, transacoesAgrupadas, loading]);
+  }, [filtroTipo, busca, transacoesAgrupadas, loading, filtroPeriodo, anoSelecionado, mesSelecionado, diaSelecionado, dataInicioPersonalizada, dataFimPersonalizada]);
   
   useEffect(() => {
     
@@ -543,7 +591,7 @@ export default function Transactions() {
   };
   
   const formatarValor = (valor: number) => {
-     return `R$ ${Math.abs(valor).toFixed(2).replace('.', ',')}`;
+    return `R$ ${Math.abs(valor).toFixed(2).replace('.', ',')}`;
   };
 
   const handleValorChange = (campo: 'valorPrevisto' | 'valorReal', text: string) => {
@@ -647,6 +695,232 @@ export default function Transactions() {
     </View>
   );
 
+  const renderFiltroAvancado = () => {
+    
+    return (
+    
+    <View style={styles.filtroAvancadoContainer}>
+
+      <TouchableOpacity style={styles.filtroToggleButton} onPress={() => setShowFiltroAvancado(!showFiltroAvancado)}>
+        
+        <Text style={styles.filtroToggleIcon}>📅</Text>
+        <Text style={styles.filtroToggleText}> {showFiltroAvancado ? 'Ocultar filtros' : 'Filtrar por período'}</Text>
+        <Text style={styles.filtroToggleArrow}> {showFiltroAvancado ? '▼' : '▶'} </Text>
+
+      </TouchableOpacity>
+
+      {showFiltroAvancado && (
+        
+        <View style={styles.filtroOpcoesContainer}>
+          
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.periodoRapidoScroll}>
+            
+            <TouchableOpacity style={[styles.periodoRapidoButton, filtroPeriodo === 'todos' && styles.periodoRapidoButtonAtivo]} onPress
+            ={() => setFiltroPeriodo('todos')}>
+             
+              <Text style={[styles.periodoRapidoText, filtroPeriodo === 'todos' && styles.periodoRapidoTextAtivo]}> Todos </Text>
+           
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.periodoRapidoButton, filtroPeriodo === 'hoje' && styles.periodoRapidoButtonAtivo]} onPress
+            ={() => setFiltroPeriodo('hoje')}>
+           
+              <Text style={[styles.periodoRapidoText, filtroPeriodo === 'hoje' && styles.periodoRapidoTextAtivo]}> Hoje </Text>
+           
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.periodoRapidoButton, filtroPeriodo === 'mes' && styles.periodoRapidoButtonAtivo]} onPress=
+            {() => setFiltroPeriodo('mes')}>
+              
+              <Text style={[styles.periodoRapidoText, filtroPeriodo === 'mes' && styles.periodoRapidoTextAtivo]}> Mês </Text>
+           
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.periodoRapidoButton, filtroPeriodo === 'ano' && styles.periodoRapidoButtonAtivo]} onPress=
+            {() => setFiltroPeriodo('ano')}>
+          
+              <Text style={[styles.periodoRapidoText, filtroPeriodo === 'ano' && styles.periodoRapidoTextAtivo]}> Ano </Text>
+          
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.periodoRapidoButton, filtroPeriodo === 'personalizado' && styles.periodoRapidoButtonAtivo]}
+            onPress={() => setFiltroPeriodo('personalizado')}>
+             
+              <Text style={[styles.periodoRapidoText, filtroPeriodo === 'personalizado' && styles.periodoRapidoTextAtivo]}> Personalizado </Text>
+           
+            </TouchableOpacity>
+
+          </ScrollView>
+
+          {filtroPeriodo === 'mes' && (
+            
+            <View style={styles.filtroDetalhadoContainer}>
+             
+              <View style={styles.seletorLinha}>
+            
+                <Text style={styles.seletorLabel}>Mês:</Text>
+            
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.seletorScroll}>
+                  
+                  {meses.map((mes, index) => (
+                   
+                   <TouchableOpacity key={index} style={[styles.seletorItem, mesSelecionado === index + 1 && styles.seletorItemAtivo]}
+                   onPress={() => setMesSelecionado(index + 1)}>
+                     
+                    <Text style={[styles.seletorItemText, mesSelecionado === index + 1 && styles.seletorItemTextAtivo]}> {mes.slice(0, 3)} </Text>
+                   
+                  </TouchableOpacity>
+
+                  ))}
+
+                </ScrollView>
+
+              </View>
+
+              <View style={styles.seletorLinha}>
+               
+                <Text style={styles.seletorLabel}>Ano:</Text>
+               
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.seletorScroll}>
+                  
+                  {anos.map((ano) => (
+                    
+                    <TouchableOpacity key={ano} style={[styles.seletorItem, anoSelecionado === ano && styles.seletorItemAtivo]} onPress
+                    ={() => setAnoSelecionado(ano)}>
+                      
+                      <Text style={[styles.seletorItemText, anoSelecionado === ano && styles.seletorItemTextAtivo]}> {ano} </Text>
+                    
+                    </TouchableOpacity>
+                  ))}
+
+                </ScrollView>
+
+              </View>
+
+            </View>
+          )}
+
+          {filtroPeriodo === 'ano' && (
+            
+            <View style={styles.filtroDetalhadoContainer}>
+             
+              <View style={styles.seletorLinha}>
+            
+                <Text style={styles.seletorLabel}>Ano:</Text>
+               
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.seletorScroll}>
+                 
+                  {anos.map((ano) => (
+                    
+                    <TouchableOpacity key={ano} style={[styles.seletorItem, anoSelecionado === ano && styles.seletorItemAtivo]} onPress
+                    ={() => setAnoSelecionado(ano)}>
+                     
+                      <Text style={[styles.seletorItemText, anoSelecionado === ano && styles.seletorItemTextAtivo]}> {ano} </Text>
+                   
+                    </TouchableOpacity>
+
+                  ))}
+
+                </ScrollView>
+
+              </View>
+            </View>
+          )}
+
+          {filtroPeriodo === 'personalizado' && (
+           
+           <View style={styles.filtroDetalhadoContainer}>
+              <View style={styles.dataPersonalizadaLinha}>
+                
+                <View style={styles.dataPersonalizadaItem}>
+                  
+                  <Text style={styles.seletorLabel}>De:</Text>
+                  
+                  <TouchableOpacity style={styles.dataPersonalizadaButton} onPress={() => setShowDatePickerInicio(true)}>
+                    
+                    <Text style={styles.dataPersonalizadaText}> {dataInicioPersonalizada 
+                    ? dataInicioPersonalizada.toLocaleDateString('pt-BR') : 'Selecionar'}
+                    </Text>
+
+                  </TouchableOpacity>
+
+                </View>
+
+                <View style={styles.dataPersonalizadaItem}>
+                  
+                  <Text style={styles.seletorLabel}>Até:</Text>
+                  
+                  <TouchableOpacity style={styles.dataPersonalizadaButton} onPress={() => setShowDatePickerFim(true)}>
+                    
+                    <Text style={styles.dataPersonalizadaText}> {dataFimPersonalizada 
+                    ? dataFimPersonalizada.toLocaleDateString('pt-BR') : 'Selecionar'}
+                    </Text>
+
+                  </TouchableOpacity>
+
+                </View>
+
+              </View>
+
+              <TouchableOpacity style={styles.limparFiltroButton} onPress={() => { setDataInicioPersonalizada(null); setDataFimPersonalizada(null); }}>
+                <Text style={styles.limparFiltroText}>Limpar datas</Text>
+              </TouchableOpacity>
+
+            </View>
+
+          )}
+
+          {filtroPeriodo !== 'todos' && (
+           
+            <View style={styles.filtroAtivoContainer}>
+           
+              <Text style={styles.filtroAtivoIcon}>🔍</Text>
+
+              <Text style={styles.filtroAtivoText}>
+                {filtroPeriodo === 'hoje' && 'Mostrando transações de hoje'}
+                {filtroPeriodo === 'mes' && `Mostrando transações de ${meses[mesSelecionado - 1]} de ${anoSelecionado}`}
+                {filtroPeriodo === 'ano' && `Mostrando transações de ${anoSelecionado}`}
+                {filtroPeriodo === 'personalizado' && 'Mostrando transações do período personalizado'}
+              </Text>
+
+              <TouchableOpacity onPress={() => setFiltroPeriodo('todos')}>
+                <Text style={styles.filtroAtivoLimpar}>✕</Text>
+              </TouchableOpacity>
+
+            </View>
+
+          )}
+
+        </View>
+      )}
+
+      {showDatePickerInicio && (
+        
+        <DateTimePicker value={dataInicioPersonalizada || new Date()} mode="date" onChange={(event, selectedDate) => {
+        setShowDatePickerInicio(false);
+        
+        if (selectedDate) {
+          setDataInicioPersonalizada(selectedDate);
+        }
+
+        }} />
+
+      )}
+
+      {showDatePickerFim && (
+       
+        <DateTimePicker value={dataFimPersonalizada || new Date()} mode="date" onChange={(event, selectedDate) => { setShowDatePickerFim(false);
+        
+        if (selectedDate) {
+          setDataFimPersonalizada(selectedDate);
+        }
+      
+        }}  />
+      )}
+
+    </View>
+  ); }
+
   if (loading) {
    
     return (
@@ -700,6 +974,8 @@ export default function Transactions() {
 
       </View>
 
+      {renderFiltroAvancado()}
+
     </View>
 
     {transacoesFiltradas.length === 0 ? (
@@ -729,8 +1005,8 @@ export default function Transactions() {
             
             <View style={styles.modalHeaderEdit}>
               
-              <Text style={styles.modalTitleEdit}> Editar {transacaoParaEditar?.tipo === 'renda' ? 'Renda' : transacaoParaEditar?.tipo
-              === 'despesa' ? 'Despesa' : 'Investimento'} </Text>
+              <Text style={styles.modalTitleEdit}> Editar {transacaoParaEditar?.tipo === 'renda' ? 'renda' : transacaoParaEditar?.tipo
+              === 'despesa' ? 'despesa' : 'investimento'} </Text>
               
               <TouchableOpacity onPress={() => { setShowEditModal(false); setTransacaoParaEditar(null); setNovaCategoria(''); }}>
                 <Text style={styles.modalCloseTextEdit}>✕</Text>
@@ -856,7 +1132,7 @@ export default function Transactions() {
                 
                 <View style={[styles.editInputGroup, styles.editInputHalf]}>
                   
-                  <Text style={styles.editLabel}>Data Real</Text>
+                  <Text style={styles.editLabel}>Data real</Text>
                   
                   <TouchableOpacity style={styles.dateButtonEdit} onPress={() => setMostrarPickerDataReal(true)}>
                     <Text style={styles.dateButtonTextEdit}> {editForm.dataReal ? editForm.dataReal.toLocaleDateString('pt-BR') : 'Selecionar'} </Text>
@@ -974,6 +1250,7 @@ const styles = StyleSheet.create({
     color: '#0f248d',
     marginTop: 10,
     fontSize: 16,
+    fontFamily: 'Alatsi_400Regular'
   },
 
   header: {
@@ -984,7 +1261,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'Alatsi_400Regular',
     color: '#0f248d',
     marginBottom: 5,
   },
@@ -992,6 +1269,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: '#0f248d',
+    fontFamily: 'Cabin_400Regular'
   },
 
   filtrosContainer: {
@@ -1019,7 +1297,7 @@ const styles = StyleSheet.create({
   filtroTipoText: {
     fontSize: 12,
     color: '#0f248d',
-    fontWeight: '600',
+    fontFamily: 'Cabin_700Bold'
   },
 
   filtroTipoTextAtivo: {
@@ -1039,6 +1317,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: '#0f248d',
+    fontFamily: 'Inter_400Regular'
   },
 
   buscaClear: {
@@ -1065,8 +1344,8 @@ const styles = StyleSheet.create({
   },
 
   cabecalhoData: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontFamily: 'Cabin_700Bold',
     color: '#0f248d',
   },
   
@@ -1078,8 +1357,8 @@ const styles = StyleSheet.create({
   },
 
   cabecalhoTotal: {
-    fontSize: 12,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontFamily: 'Alatsi_400Regular'
   },
 
   totalPositivo: {
@@ -1125,9 +1404,9 @@ const styles = StyleSheet.create({
 
   transacaoNome: {
     fontSize: 14,
-    fontWeight: '600',
     color: '#0f248d',
     marginBottom: 4,
+    fontFamily: 'Alatsi_400Regular'
   },
 
   transacaoDetalhes: {
@@ -1139,22 +1418,26 @@ const styles = StyleSheet.create({
   transacaoCategoria: {
     fontSize: 12,
     color: '#0f248d',
+    fontFamily: 'Cabin_400Regular'
   },
 
   transacaoSeparador: {
     fontSize: 12,
     color: '#0f248d',
+    fontFamily: 'Cabin_400Regular'
   },
 
   transacaoTipo: {
-    fontSize: 12,
-    color: '#0f248d',
+    fontSize: 10,
+    color: '#496DC7',
+    fontFamily: 'Inter_700Bold'
   },
 
   transacaoHora: {
     fontSize: 12,
     color: '#999',
-    marginLeft: 5
+    marginLeft: 5,
+    fontFamily: 'Cabin_400Regular'
   },
 
   transacaoValorContainer: {
@@ -1163,7 +1446,7 @@ const styles = StyleSheet.create({
 
   transacaoValor: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontFamily: 'Alatsi_400Regular'
   },
 
   valorPositivo: {
@@ -1209,7 +1492,7 @@ const styles = StyleSheet.create({
 
   emptyTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: 'Cabin_700Bold',
     color: '#0f248d',
     marginBottom: 10,
     textAlign: 'center',
@@ -1220,6 +1503,7 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     lineHeight: 20,
+    fontFamily: 'Cabin_400Regular'
   },
 
   modalOverlay: {
@@ -1238,31 +1522,33 @@ const styles = StyleSheet.create({
   },
 
   modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontFamily: 'Alatsi_400Regular',
     color: '#0f248d',
     marginBottom: 15,
   },
 
   modalText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#0f248d',
     textAlign: 'center',
     marginBottom: 5,
+    fontFamily: 'Cabin_400Regular'
   },
 
   modalNome: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontFamily: 'Inter_700Bold',
     color: '#0f248d',
     textAlign: 'center',
     marginBottom: 15,
   },
 
   modalWarning: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#F44336',
     marginBottom: 20,
+    fontFamily: 'Cabin_400Regular'
   },
 
   modalButtons: {
@@ -1283,7 +1569,7 @@ const styles = StyleSheet.create({
   modalCancelText: {
     fontSize: 14,
     color: '#FFF',
-    fontWeight: '600',
+    fontFamily: 'Cabin_700Bold'
   },
 
   modalConfirmButton: {
@@ -1296,9 +1582,9 @@ const styles = StyleSheet.create({
   },
 
   modalConfirmText: {
-    fontSize: 14,
+    fontSize: 18,
     color: '#666',
-    fontWeight: '600',
+    fontFamily: 'Cabin_700Bold'
   },
 
   modalOverlayEdit: {
@@ -1324,8 +1610,8 @@ const styles = StyleSheet.create({
   },
 
   modalTitleEdit: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontFamily: 'Alatsi_400Regular',
     color: '#0f248d',
   },
 
@@ -1347,7 +1633,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     marginBottom: 8,
-    fontWeight: '500',
+    fontFamily: 'Cabin_700Bold'
   },
 
   editInput: {
@@ -1358,6 +1644,7 @@ const styles = StyleSheet.create({
     color: '#333',
     borderWidth: 1,
     borderColor: '#aab3ff',
+    fontFamily: 'Inter_400Regular'
   },
 
   typeContainer: {
@@ -1383,7 +1670,7 @@ const styles = StyleSheet.create({
   typeButtonText: {
     fontSize: 16,
     color: '#666',
-    fontWeight: '500',
+    fontFamily: 'Cabin_700Bold'
   },
 
   typeButtonTextActive: {
@@ -1398,6 +1685,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginBottom: 8,
+    fontFamily: 'Inter_400Regular'
   },
 
   sugestoesScroll: {
@@ -1422,6 +1710,7 @@ const styles = StyleSheet.create({
   sugestaoChipText: {
     fontSize: 14,
     color: '#0f248d',
+    fontFamily: 'Cabin_400Regular'
   },
 
   sugestaoChipTextAtiva: {
@@ -1449,6 +1738,7 @@ const styles = StyleSheet.create({
   dateButtonTextEdit: {
     fontSize: 16,
     color: '#333',
+    fontFamily: 'Inter_400Regular'
   },
 
   inputWithCurrencyEdit: {
@@ -1464,7 +1754,7 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     fontSize: 16,
     color: '#333',
-    fontWeight: '500',
+    fontFamily: 'Cabin_700Bold'
   },
 
   editInputWithCurrency: {
@@ -1473,6 +1763,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     borderWidth: 0,
+    fontFamily: 'Alatsi_400Regular'
   },
 
   editButtonsContainer: {
@@ -1495,9 +1786,9 @@ const styles = StyleSheet.create({
   },
 
   editButtonTextSave: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#FFF',
-    fontWeight: 'bold',
+    fontFamily: 'Cabin_700Bold'
   },
   
   previstoContainer: {
@@ -1510,7 +1801,7 @@ const styles = StyleSheet.create({
   previstoText: {
     fontSize: 10,
     color: '#FF9800',
-    fontWeight: '600',
+    fontFamily: 'Inter_700Bold'
   },
   
   valorPrevisto: {
@@ -1522,6 +1813,181 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#FF9800',
     marginLeft: 5,
+  },
+
+  filtroAvancadoContainer: {
+    marginTop: 10,
+    marginBottom: 5,
+  },
+  
+  filtroToggleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(15, 36, 141, 0.1)',
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  
+  filtroToggleIcon: {
+    fontSize: 18,
+    marginRight: 8,
+  },
+  
+  filtroToggleText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#0f248d',
+    fontFamily: 'Cabin_700Bold',
+  },
+  
+  filtroToggleArrow: {
+    fontSize: 14,
+    color: '#0f248d',
+  },
+  
+  filtroOpcoesContainer: {
+    marginTop: 10,
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    padding: 15,
+  },
+  
+  periodoRapidoScroll: {
+    flexDirection: 'row',
+    marginBottom: 15,
+  },
+  
+  periodoRapidoButton: {
+    backgroundColor: 'rgba(15, 36, 141, 0.1)',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  
+  periodoRapidoButtonAtivo: {
+    backgroundColor: '#0f248d',
+  },
+  
+  periodoRapidoText: {
+    fontSize: 12,
+    color: '#0f248d',
+    fontFamily: 'Cabin_700Bold',
+  },
+  
+  periodoRapidoTextAtivo: {
+    color: '#FFF',
+  },
+  
+  filtroDetalhadoContainer: {
+    marginTop: 5,
+  },
+  
+  seletorLinha: {
+    marginBottom: 15,
+  },
+  
+  seletorLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+    fontFamily: 'Cabin_700Bold',
+  },
+  
+  seletorScroll: {
+    flexDirection: 'row',
+  },
+  
+  seletorItem: {
+    backgroundColor: '#F0EFFF',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 15,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#aab3ff',
+  },
+  
+  seletorItemAtivo: {
+    backgroundColor: '#0f248d',
+    borderColor: '#0f248d',
+  },
+  
+  seletorItemText: {
+    fontSize: 12,
+    color: '#0f248d',
+    fontFamily: 'Cabin_700Bold',
+  },
+  
+  seletorItemTextAtivo: {
+    color: '#FFF',
+  },
+  
+  dataPersonalizadaLinha: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  
+  dataPersonalizadaItem: {
+    flex: 1,
+    marginRight: 10,
+  },
+  
+  dataPersonalizadaButton: {
+    backgroundColor: '#F0EFFF',
+    borderRadius: 8,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#aab3ff',
+  },
+  
+  dataPersonalizadaText: {
+    fontSize: 14,
+    color: '#0f248d',
+    fontFamily: 'Inter_400Regular',
+  },
+  
+  limparFiltroButton: {
+    backgroundColor: '#FFE5E5',
+    borderRadius: 8,
+    padding: 10,
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  
+  limparFiltroText: {
+    fontSize: 12,
+    color: '#F44336',
+    fontFamily: 'Cabin_700Bold',
+  },
+  
+  filtroAtivoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(15, 36, 141, 0.1)',
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 15,
+  },
+  
+  filtroAtivoIcon: {
+    fontSize: 14,
+    marginRight: 8,
+  },
+  
+  filtroAtivoText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#0f248d',
+    fontFamily: 'Inter_400Regular',
+  },
+  
+  filtroAtivoLimpar: {
+    fontSize: 16,
+    color: '#F44336',
+    paddingHorizontal: 5,
   },
 
 })

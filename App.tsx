@@ -1,8 +1,12 @@
 import React from 'react';
-import { StatusBar} from 'react-native';
+import { StatusBar, View, ActivityIndicator } from 'react-native';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import { useFonts as useCabin, Cabin_400Regular, Cabin_700Bold } from '@expo-google-fonts/cabin';
+import { useFonts as useInter, Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
+import { useFonts as useAlatsi, Alatsi_400Regular } from '@expo-google-fonts/alatsi';
 
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 
@@ -36,10 +40,18 @@ const Stack = createNativeStackNavigator();
 
 function AppNavigator() { //verifica se esta carregando os dados do usuario
 
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
 
-  if (isLoading) {
-    return null;
+  if (authLoading) {
+
+    return (
+      
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#dadafa' }}>
+        <ActivityIndicator size="large" color="#0f248d" />
+      </View>
+
+    );
+
   }
 
   return (
@@ -77,6 +89,27 @@ function AppNavigator() { //verifica se esta carregando os dados do usuario
 }
 
 export default function App() {
+
+  const [InterLoaded] = useInter({ Inter_400Regular, Inter_700Bold });
+  const [CabinLoaded] = useCabin({ Cabin_400Regular, Cabin_700Bold });
+  const [AlatsiLoaded] = useAlatsi({ Alatsi_400Regular})
+
+  function useFonts(fontMap: any) { 
+
+    const [InterLoaded] = useInter({ Inter_400Regular: fontMap.Inter_400Regular, Inter_700Bold: fontMap.Inter_700Bold});
+    const [AlatsiLoaded] = useAlatsi({ Alatsi_400Regular: fontMap.Alatsi_400Regular });
+    const [CabinLoaded] = useCabin({ Cabin_400Regular: fontMap.Cabin_400Regular, Cabin_700Bold: fontMap.Cabin_700Bold});
+
+    return [InterLoaded && AlatsiLoaded && CabinLoaded]; 
+  }
+
+  if (!InterLoaded || !CabinLoaded || !AlatsiLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#dadafa' }}>
+        <ActivityIndicator size="large" color="#0f248d" />
+      </View>
+    );
+  }
   
   return (
     

@@ -381,7 +381,7 @@ export default function AddExpense() {
           <Text style={styles.backButtonText}>‹</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>Nova Despesa</Text>
+        <Text style={styles.title}>Nova despesa</Text>
         <View style={{ width: 40 }} />
 
       </View>
@@ -659,7 +659,7 @@ export default function AddExpense() {
           {isLoading ? (
             <ActivityIndicator color="#FFF" />
           ) : (
-            <Text style={styles.saveButtonText}>Salvar Despesa</Text>
+            <Text style={styles.saveButtonText}>Salvar despesa</Text>
           )}
 
         </TouchableOpacity>
@@ -698,13 +698,13 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#FFF',
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Inter_400Regular'
   },
 
   title: {
     color: '#FFF',
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontFamily: 'Alatsi_400Regular'
   },
 
   scrollView: {
@@ -723,7 +723,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     marginBottom: 8,
-    fontWeight: '500',
+    fontFamily: 'Cabin_700Bold'
   },
 
   input: {
@@ -734,6 +734,7 @@ const styles = StyleSheet.create({
     color: '#333',
     borderWidth: 1,
     borderColor: '#aab3ff',
+    fontFamily: 'Inter_400Regular'
   },
 
   inputError: {
@@ -745,6 +746,7 @@ const styles = StyleSheet.create({
     color: '#F44336',
     fontSize: 14,
     marginTop: 5,
+    fontFamily: 'Inter_400Regular'
   },
   
   typeContainer: {
@@ -768,9 +770,9 @@ const styles = StyleSheet.create({
   },
 
   typeButtonText: {
-    fontSize: 16,
+    fontSize: 17,
     color: '#666',
-    fontWeight: '500',
+    fontFamily: 'Cabin_700Bold'
   },
 
   typeButtonTextActive: {
@@ -825,8 +827,8 @@ const styles = StyleSheet.create({
   },
 
   modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontFamily: 'Alatsi_400Regular',
     color: '#333',
   },
 
@@ -862,6 +864,7 @@ const styles = StyleSheet.create({
   categoriaItemText: {
     fontSize: 16,
     color: '#333',
+    fontFamily: 'Cabin_400Regular'
   },
 
   categoriaItemCheck: {
@@ -870,7 +873,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-   novaCategoriaButton: {
+  novaCategoriaButton: {
     backgroundColor: '#F0EFFF',
     marginHorizontal: 20,
     marginVertical: 15,
@@ -884,8 +887,8 @@ const styles = StyleSheet.create({
 
   novaCategoriaButtonText: {
     color: '#0f248d',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontFamily: 'Alatsi_400Regular'
   },
 
   novaCategoriaInputContainer: {
@@ -896,10 +899,10 @@ const styles = StyleSheet.create({
   },
 
   novaCategoriaLabel: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#666',
     marginBottom: 8,
-    fontWeight: '500',
+    fontFamily: 'Cabin_700Bold'
   },
 
   novaCategoriaInputRow: {
@@ -917,6 +920,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0E0FF',
     marginRight: 10,
+    fontFamily: 'Inter_400Regular'
   },
 
   novaCategoriaConfirmButton: {
@@ -950,7 +954,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-    separator: {
+  separator: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -967,12 +971,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#0f248d',
     marginHorizontal: 10,
-    fontWeight: '500',
+    fontFamily: 'Cabin_700Bold'
   },
 
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontFamily: 'Alatsi_400Regular',
     color: '#0f248d',
     marginTop: 10,
     marginBottom: 20,
@@ -989,6 +993,7 @@ const styles = StyleSheet.create({
   dateButtonText: {
     fontSize: 16,
     color: '#333',
+    fontFamily: 'Inter_400Regular'
   },
 
   dateButtonTextPlaceholder: {
@@ -1008,13 +1013,14 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     fontSize: 16,
     color: '#333',
-    fontWeight: '500',
+    fontFamily: 'Cabin_700Bold'
   },
 
   inputWithLeftPadding: {
     flex: 1,
     paddingLeft: 8,
     borderWidth: 0,
+    fontFamily: 'Alatsi_400Regular'
   },
 
   clearButton: {
@@ -1038,7 +1044,7 @@ const styles = StyleSheet.create({
   formErrorText: {
     color: '#F44336',
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: 'Inter_700Bold',
     textAlign: 'center',
   },
 
@@ -1054,10 +1060,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#0f248d',
     lineHeight: 22,
+    fontFamily: 'Cabin_400Regular'
   },
 
   infoTextBold: {
-    fontWeight: 'bold',
+    fontFamily: 'Cabin_700Bold',
+    fontSize: 15
   },
 
   saveButton: {
@@ -1074,8 +1082,8 @@ const styles = StyleSheet.create({
 
   saveButtonText: {
     color: '#FFF',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontFamily: 'Alatsi_400Regular'
   },
   
   bottomSpacing: {

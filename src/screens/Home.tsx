@@ -282,12 +282,13 @@ export default function Home() {
     };
 
   };
+
   if (isLoading) {
    
     return (
       
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#dadafa" />
+        <ActivityIndicator size="large" color="#0f248d" />
         <Text style={styles.loadingText}>Carregando...</Text>
       </View>
 
@@ -324,7 +325,7 @@ export default function Home() {
           </View>
 
           <View style={styles.infoBox}>
-            <Text style={[styles.infoText, { fontWeight: 'bold', color: 'white' }]}>Dica </Text>
+            <Text style={[styles.infoText, { fontFamily: 'Cabin_700Bold', color: 'white' }]}>Dica </Text>
             <Text style={styles.infoText}>Configurar sua renda ajuda o app a mostrar quanto você pode gastar e quanto já gastou esse mês </Text>
           </View>
 
@@ -583,7 +584,7 @@ const styles = StyleSheet.create({
   monthNavIcon: {
     color: '#0f248d',
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Inter_400Regular'
   },
 
   monthTextContainer: {
@@ -592,8 +593,8 @@ const styles = StyleSheet.create({
   
   monthText: {
     color: '#0f248d',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontFamily: 'Alatsi_400Regular',
   },
   
   container: {
@@ -603,13 +604,13 @@ const styles = StyleSheet.create({
 
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#0f248d',
+    backgroundColor: '#dadafa',
     justifyContent: 'center',
     alignItems: 'center',
   },
 
   loadingText: {
-    color: '#FFF',
+    color: '#0f248d',
     marginTop: 10,
     fontSize: 16,
   },
@@ -633,20 +634,22 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
     color: '#0f248d',
-    marginBottom: 15,
+    marginBottom: 18,
+    fontFamily: 'Alatsi_400Regular',
   },
   subtitle: {
     fontSize: 16,
     color: '#0f248d',
-    paddingBottom: 20
+    paddingBottom: 20,
+    fontFamily: 'Inter_400Regular',
   },
 
   greeting: {
     fontSize: 18,
     color: '#0f248d',
     marginTop: 5,
+    fontFamily: 'Cabin_700Bold',
   },
 
   setupCard: {
@@ -658,9 +661,9 @@ const styles = StyleSheet.create({
 
   setupTitle: {
     fontSize: 22,
-    fontWeight: 'bold',
     color: 'white',
     marginBottom: 10,
+    fontFamily: 'Alatsi_400Regular',
   },
 
   setupDescription: {
@@ -668,6 +671,7 @@ const styles = StyleSheet.create({
     color: '#D0CEFF',
     marginBottom: 25,
     lineHeight: 22,
+    fontFamily: 'Cabin_400Regular',
   },
 
   primaryButton: {
@@ -681,7 +685,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: '#0f248d',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'Cabin_700Bold',
   },
 
   secondaryButton: {
@@ -696,6 +700,7 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: 'white',
     fontSize: 16,
+    fontFamily: 'Cabin_700Bold',
   },
 
   infoBox: {
@@ -716,6 +721,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#D0CEFF',
     lineHeight: 20,
+    fontFamily: 'Cabin_400Regular',
   },
   
   balanceCard: {
@@ -730,11 +736,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#D0CEFF',
     marginBottom: 5,
+    fontFamily: 'Cabin_400Regular',
   },
 
   balanceValue: {
     fontSize: 48,
-    fontWeight: 'bold',
+    fontFamily: 'Alatsi_400Regular',
     color: '#FFF',
     marginBottom: 5,
   },
@@ -742,6 +749,7 @@ const styles = StyleSheet.create({
   balanceSubtitle: {
     fontSize: 14,
     color: '#D0CEFF',
+    fontFamily: 'Cabin_400Regular',
   },
   
   chartSection: {
@@ -782,7 +790,7 @@ const styles = StyleSheet.create({
   legendText: {
     fontSize: 14,
     color: '#0f248d',
-    fontWeight: 'bold',
+    fontFamily: 'Inter_700Bold',
   },
 
   quickActions: {
@@ -791,8 +799,8 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 23,
+    fontFamily: 'Alatsi_400Regular',
     color: '#0f248d',
     marginBottom: 15,
   },
@@ -830,8 +838,8 @@ const styles = StyleSheet.create({
 
   actionButtonText: {
     color: '#FFF',
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 14,
+    fontFamily: 'Cabin_700Bold',
   },
 
   summarySection: {
@@ -856,11 +864,12 @@ const styles = StyleSheet.create({
   summaryLabel: {
     fontSize: 16,
     color: 'white',
+    fontFamily: 'Cabin_400Regular',
   },
 
   summaryValue: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: 'Alatsi_400Regular',
     color: 'rgb(245, 236, 236)'
   },
 
@@ -874,6 +883,7 @@ const styles = StyleSheet.create({
   seeAllText: {
     color: '#0f248d',
     fontSize: 14,
+    fontFamily: 'Inter_400Regular',
   },
 
   categoryChip: {
@@ -887,6 +897,7 @@ const styles = StyleSheet.create({
   categoryChipText: {
     color: 'white',
     fontSize: 14,
+    fontFamily: 'Cabin_400Regular',
   },
 
   logoutButton: {
@@ -903,5 +914,6 @@ const styles = StyleSheet.create({
   logoutButtonText: {
     color: '#FF6B6B',
     fontSize: 16,
+    fontFamily: 'Inter_400Regular',
   },
 });
