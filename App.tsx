@@ -11,6 +11,7 @@ import { useFonts as useAlatsi, Alatsi_400Regular } from '@expo-google-fonts/ala
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 
 import Login from './src/screens/Login';
+import EsqueciSenha from './src/screens/EsqueciSenha';
 import Cadastro from './src/screens/Cadastro';
 import TabNavigator from './src/screens/TabNavigator';
 import SetupInitial from './src/screens/SetupInitial';
@@ -24,6 +25,7 @@ import Settings from './src/screens/Settings';
 
 export type RootStackParamList = {
   Login: undefined;
+  EsqueciSenha: undefined;
   Cadastro: undefined;
   MainTabs: undefined;
   SetupInitial: undefined;
@@ -79,10 +81,12 @@ function AppNavigator() { //verifica se esta carregando os dados do usuario
         <>
        
           <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="EsqueciSenha" component={EsqueciSenha} />
           <Stack.Screen name="Cadastro" component={Cadastro} />
        
         </>
       )}
+      
     </Stack.Navigator>
   );
 
@@ -104,11 +108,15 @@ export default function App() {
   }
 
   if (!InterLoaded || !CabinLoaded || !AlatsiLoaded) {
+
     return (
+      
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#dadafa' }}>
         <ActivityIndicator size="large" color="#0f248d" />
       </View>
+
     );
+
   }
   
   return (
