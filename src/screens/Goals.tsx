@@ -25,12 +25,19 @@ export default function Goals() {
   const [novaMetaValor, setNovaMetaValor] = useState('');
   const [salvando, setSalvando] = useState(false);
 
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [metaParaEditar, setMetaParaEditar] = useState<Meta | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [metaParaExcluir, setMetaParaExcluir] = useState<Meta | null>(null);
 
   useEffect(() => {
     carregarMetas();
   }, [user]);
+
+  const [editForm, setEditForm] = useState({
+    titulo: '',
+    valor: ''
+  });
 
   const carregarMetas = async () => {
 
@@ -167,6 +174,58 @@ export default function Goals() {
   
   };
 
+  const editarMeta = async (meta: Meta) => {
+
+    setMetaParaEditar(meta);
+
+    setEditForm({
+      titulo: meta.titulo,
+      valor: meta.valor > 0 ? formatarValor(meta.valor).replace('R$ ', '') : ''
+    });
+
+    setShowEditModal(true);
+
+  };
+
+  const salvarEdicao = async () => {
+    
+    if (!metaParaEditar || !user?.uid) return;
+
+    if (!editForm.titulo.trim()) {
+      Alert.alert('Atenção', 'Digite um título para a meta');
+      return;
+    }
+
+    const valorNumerico = editForm.valor ? parseFloat(editForm.valor.replace(',', '.')) : 0;
+    setSalvando(true);
+
+    try {
+
+      const metaRef = doc(db, 'users', user.uid, 'metas', metaParaEditar.id);
+
+      await updateDoc(metaRef, {
+        titulo: editForm.titulo.trim(),
+        valor: valorNumerico,
+        atualizadoEm: new Date()
+      });
+
+      setMetas(prev => prev.map(m => m.id === metaParaEditar.id ? { ...m, titulo: editForm.titulo.trim(), valor: valorNumerico } : m ));
+
+      setShowEditModal(true);
+      setMetaParaEditar(null);
+      setEditForm({ titulo: '', valor: '' });
+
+    } catch (error) {
+
+      console.error('Erro ao editar meta:', error);
+      Alert.alert('Erro', 'Não foi possível editar a meta');
+
+    } finally {
+      setSalvando(false);
+    }
+
+  };
+
   const formatarValor = (valor: number) => {
     if (valor === 0) return '';
     return `R$ ${valor.toFixed(2).replace('.', ',')}`;
@@ -211,12 +270,12 @@ export default function Goals() {
      
       <View style={styles.inputContainer}>
         
-        <Text style={styles.inputLabel}>📝 Título da meta</Text>
+        <Text style={styles.inputLabel}>Título da meta</Text>
         
         <TextInput style={styles.input} placeholder="Ex: Juntar 10 mil reais" placeholderTextColor="#8581FF" value={novaMetaTitulo}
         onChangeText={setNovaMetaTitulo} autoFocus />
  
-        <Text style={styles.inputLabel}>💰 Valor (opcional)</Text>
+        <Text style={styles.inputLabel}> Valor (opcional)</Text>
        
         <View style={styles.inputValorContainer}>
           
@@ -295,9 +354,17 @@ export default function Goals() {
 
             </View>
 
-            <TouchableOpacity style={styles.botaoExcluir} onPress={() => confirmarExclusao(meta)}>
-              <Text style={styles.botaoExcluirIcon}>🗑️</Text>
-            </TouchableOpacity>
+            <View style={styles.metaAcoes}>
+              
+              <TouchableOpacity style={styles.botaoEditar} onPress={() => editarMeta(meta)}>
+                <Text style={styles.botaoEditarIcon}>✏️</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.botaoExcluir} onPress={() => confirmarExclusao(meta)}>
+                <Text style={styles.botaoExcluirIcon}>🗑️</Text>
+              </TouchableOpacity>
+
+            </View>
 
           </View>
         ))
@@ -306,6 +373,69 @@ export default function Goals() {
       <View style={styles.bottomSpacing} />
 
     </ScrollView>
+
+    <Modal visible={showEditModal} transparent animationType='slide' onRequestClose={() => {
+      setShowEditModal(false);
+      setMetaParaEditar(null);
+      setEditForm({ titulo: '', valor: '' });
+    }}>
+
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContentEdit}>
+          
+          <View style={styles.modalHeader}>
+
+            <Text style={styles.modalTitleEdit}> Editar meta </Text>
+
+            <TouchableOpacity onPress={() => { setShowEditModal(false); setMetaParaEditar(null); setEditForm({ titulo: '', valor: '' }); }}>
+              <Text style={styles.modalCloseText}> ✕ </Text>
+            </TouchableOpacity>
+
+          </View>
+
+          <View style={styles.modalBody}>
+
+            <Text style={styles.modalLabel}> Título </Text>
+            
+            <TextInput style={styles.modalInput} placeholder='Ex: juntar 10 mil reais' placeholderTextColor='#8581FF' value=
+            {editForm.titulo} onChangeText={(text) => setEditForm(prev => ({ ...prev, titulo: text }))} />
+
+            <Text style={styles.modalLabel}> Valor (opcional) </Text>
+
+            <View style={styles.modalValorContainer}>             
+              <Text style={styles.modalValorSimbolo}> R$ </Text>
+              <TextInput style={styles.modalValorInput} placeholder='0,00' placeholderTextColor='#8581FF' value={editForm.valor}
+              onChangeText={(text) => setEditForm(prev => ({ ...prev, valor: formatarParaDinheiro(text) }))} keyboardType='numeric' />       
+            </View>
+
+            <View style={styles.modalButtons}>
+            
+              <TouchableOpacity style={styles.modalCancelButton} onPress={() => {
+                setShowEditModal(false);
+                setMetaParaEditar(null);
+                setEditForm({ titulo: '', valor: '' })
+              }}>
+              
+                <Text style={styles.modalCancelText}>Cancelar</Text>
+            
+              </TouchableOpacity>
+
+              <TouchableOpacity style={[styles.modalSaveButton, salvando && styles.modalSaveButtonDisabled]} onPress={salvarEdicao} disabled={salvando}>
+              
+                {salvando ? (
+                  <ActivityIndicator color="#FFF" size="small" />
+                ) : (
+                  <Text style={styles.modalSaveText}>Salvar</Text>
+                )}
+
+              </TouchableOpacity>
+
+            </View>
+
+          </View>
+        </View>
+      </View>
+    </Modal>
 
     <Modal visible={showDeleteModal} transparent animationType="fade" onRequestClose={() => {
       setShowDeleteModal(false);
@@ -619,6 +749,21 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 
+  metaAcoes: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  
+  botaoEditar: {
+    padding: 8,
+    marginRight: 5,
+  },
+  
+  botaoEditarIcon: {
+    fontSize: 18,
+    color: '#0f248d',
+  },
+
   bottomSpacing: {
     height: 40,
   },
@@ -628,6 +773,103 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+
+  modalContentEdit: {
+    backgroundColor: '#FFF',
+    borderRadius: 20,
+    padding: 0,
+    width: '90%',
+    maxWidth: 400,
+    overflow: 'hidden',
+  },
+  
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#0f248d',
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  
+  modalTitleEdit: {
+    fontSize: 20,
+    fontFamily: 'Alatsi_400Regular',
+    color: '#FFF',
+  },
+  
+  modalCloseText: {
+    fontSize: 24,
+    color: '#FFF',
+  },
+  
+  modalBody: {
+    padding: 20,
+  },
+  
+  modalLabel: {
+    fontSize: 16,
+    color: '#0f248d',
+    marginBottom: 8,
+    fontFamily: 'Cabin_700Bold',
+  },
+  
+  modalInput: {
+    backgroundColor: '#F8F8FF',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#aab3ff',
+    marginBottom: 15,
+    fontFamily: 'Inter_400Regular',
+  },
+  
+  modalValorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F8FF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#aab3ff',
+    marginBottom: 25,
+  },
+  
+  modalValorSimbolo: {
+    paddingLeft: 12,
+    fontSize: 16,
+    color: '#0f248d',
+    fontFamily: 'Cabin_700Bold',
+  },
+  
+  modalValorInput: {
+    flex: 1,
+    padding: 12,
+    fontSize: 16,
+    color: '#333',
+    fontFamily: 'Alatsi_400Regular',
+  },
+  
+  modalSaveButton: {
+    flex: 1,
+    backgroundColor: '#0f248d',
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  
+  modalSaveButtonDisabled: {
+    backgroundColor: '#A5A2E8',
+  },
+  
+  modalSaveText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontFamily: 'Cabin_700Bold',
   },
 
   modalContent: {

@@ -12,6 +12,7 @@ type RootStackParamList = {
   Login: undefined;
   Cadastro: undefined;
   Home: undefined;
+  EsqueciSenha: undefined;
 };
 
 type NavigationProps = NativeStackNavigationProp<RootStackParamList>;
@@ -142,7 +143,7 @@ export default function Login() {
 
           </View>
 
-          <TouchableOpacity style={styles.forgotPassword}>
+          <TouchableOpacity style={styles.forgotPassword} onPress={() => navigation.navigate('EsqueciSenha')}>
             <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
           </TouchableOpacity>
 
