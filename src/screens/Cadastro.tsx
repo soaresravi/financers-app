@@ -10,7 +10,7 @@ import { SignUpData } from '../types/auth';
 type RootStackParamList = {
   Login: undefined;
   Cadastro: undefined;
-  Home: undefined;
+  MainTabs: undefined;
 };
 
 type NavigationProps = NativeStackNavigationProp<RootStackParamList>;

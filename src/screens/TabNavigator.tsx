@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text }from 'react-native';
+import { StyleSheet, Image }from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'; 
 
 import Home from './Home';
@@ -17,20 +17,20 @@ export default function TabNavigator() {
     height: 60, paddingBottom: 5, }, tabBarActiveTintColor: '#0f248d', tabBarInactiveTintColor: '#8581FF', tabBarShowLabel: true, tabBarLabelStyle: {
     fontSize: 10, fontWeight: '500', }, }}>
       
-      <Tab.Screen name="HomeTab" component={Home} options={{ tabBarLabel: 'Resumo', tabBarIcon: ({ color, size }) => (
-        <Text style={[styles.menuIcon, { color }]}>📊</Text>
+      <Tab.Screen name="HomeTab" component={Home} options={{ tabBarLabel: 'Resumo', tabBarIcon: () => (
+        <Image style={styles.menuIcon} source={require('../../assets/home.png')}/>
       ), }} />
       
-      <Tab.Screen name="TransactionsTab" component={Transactions} options={{ tabBarLabel: 'Transações', tabBarIcon: ({ color, size }) => (
-        <Text style={[styles.menuIcon, { color }]}>📝</Text>
+      <Tab.Screen name="TransactionsTab" component={Transactions} options={{ tabBarLabel: 'Transações', tabBarIcon: () => (
+        <Image style={styles.menuIcon} source={require('../../assets/administrative-transactions.png')}/>
       ), }} />
       
-      <Tab.Screen name="GoalsTab" component={Goals} options={{ tabBarLabel: 'Metas', tabBarIcon: ({ color, size }) => (
-        <Text style={[styles.menuIcon, { color }]}>🎯</Text>
+      <Tab.Screen name="GoalsTab" component={Goals} options={{ tabBarLabel: 'Metas', tabBarIcon: () => (
+        <Image style={styles.menuIcon} source={require('../../assets/alvo.png')}/>
       ), }} />
 
-      <Tab.Screen name="SettingsTab" component={Settings} options={{ tabBarLabel: 'Configurações', tabBarIcon: ({ color, size }) => (
-        <Text style={[styles.menuIcon, { color }]}>⚙️</Text>
+      <Tab.Screen name="SettingsTab" component={Settings} options={{ tabBarLabel: 'Configurações', tabBarIcon: () => (
+        <Image style={styles.menuIcon} source={require('../../assets/configuracoes.png')}/>
       ), }} />
 
     </Tab.Navigator>
@@ -41,9 +41,8 @@ export default function TabNavigator() {
 const styles = StyleSheet.create({
   
   menuIcon: {
-    fontSize: 20,
-    color: '#0f248d',
-    marginBottom: 3,
+    width: 20,
+    height: 20
   },
 
 })

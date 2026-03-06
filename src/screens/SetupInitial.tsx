@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect} from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Animated, Dimensions, Alert, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform} from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Animated, Dimensions, Alert, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform, Image } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -12,48 +12,68 @@ import { Keyboard } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
+const getIconePorKey = (key: string): any => {
+
+  const icones: Record<string, any> = {
+
+    rendaRecorrente: require('../../assets/pasta.png'),
+    rendaExtra: require('../../assets/computador-portatil.png'),
+    moradia: require('../../assets/home.png'),
+    energia: require('../../assets/trovao.png'),
+    agua: require('../../assets/gotas.png'),
+    comunicacao: require('../../assets/aplicativo-movel.png'),
+    alimentacao: require('../../assets/burguer.png'),
+    gas: require('../../assets/tanque-de-gas.png'),
+    lazer: require('../../assets/controle-de-video-game.png'),
+    reservaEmergencia: require('../../assets/bolsa-de-dinheiro.png'),
+    outrasMetas: require('../../assets/alvo.png'),
+  };
+
+  return icones[key] 
+};
+
 const telasSetup = [
   
   { titulo: 'Suas rendas mensais', key: 'rendas', descricao: 'Informe suas fontes de renda.',
    
   campos: [{
-    label: 'Renda recorrente (ex: salário)', key: 'rendaRecorrente', placeholder: '0,00', icone: '💼'
+    label: 'Renda recorrente (ex: salário)', key: 'rendaRecorrente', placeholder: '0,00'
   },
   
-  { label: 'Renda extra (ex: freelas, hora extra)', key: 'rendaExtra', placeholder: '0,00', icone:'✨'} 
+  { label: 'Renda extra (ex: freelas, hora extra)', key: 'rendaExtra', placeholder: '0,00' } 
 
   ]},
     
   { titulo: 'Despesas fixas', key: 'despesasFixas', descricao: 'Despesas que se repetem todo mês.',
     
   campos: [{
-    label: 'Moradia/Aluguel', key: 'moradia', placeholder: '0,00', icone: '🏠'
+    label: 'Moradia/Aluguel', key: 'moradia', placeholder: '0,00'
   },
     
-  { label: 'Energia', key: 'energia', placeholder: '0,00', icone: '⚡' },
-  { label: 'Água', key: 'agua', placeholder: '0,00', icone: '💧' },
-  { label: 'Internet', key: 'comunicacao', placeholder: '0,00', icone: '📱' },
+  { label: 'Energia', key: 'energia', placeholder: '0,00' },
+  { label: 'Água', key: 'agua', placeholder: '0,00' },
+  { label: 'Internet', key: 'comunicacao', placeholder: '0,00' },
     
   ]},
     
   { titulo: 'Despesas variáveis', key: 'despesasVariaveis', descricao: 'Despesas que podem variar mensalmente.',
         
   campos: [{
-    label: 'Mercado', key: 'alimentacao', placeholder: '0,00', icone: '🍔'
+    label: 'Mercado', key: 'alimentacao', placeholder: '0,00'
   },
     
-  { label: 'Gás', key: 'gas', placeholder: '0,00', icone: '💨' },
-  { label: 'Lazer/Outros', key: 'lazer', placeholder: '0,00', icone: '🎮' },
+  { label: 'Gás', key: 'gas', placeholder: '0,00' },
+  { label: 'Lazer/Outros', key: 'lazer', placeholder: '0,00' },
     
   ]},
     
   { titulo: 'Investimentos & Poupança', key: 'investimentos', descricao: 'Valores que você guarda para o futuro.',
     
   campos: [{
-    label: 'Reserva de emergência', key: 'reservaEmergencia', placeholder: '0,00', icone: '💰'
+    label: 'Reserva de emergência', key: 'reservaEmergencia', placeholder: '0,00'
   },
     
-  { label: 'Outras Metas', key: 'outrasMetas', placeholder: '0,00', icone: '🎯' }
+  { label: 'Outras Metas', key: 'outrasMetas', placeholder: '0,00' }
     
   ]}
 
@@ -61,7 +81,6 @@ const telasSetup = [
 
 type RootStackParamList = {
   MainTabs: undefined;
-  Home: undefined;
   SetupInitial: undefined;
 };
 
@@ -336,7 +355,7 @@ export default function SetupInitial() {
 
       navigation.reset({
         index: 0,
-        routes: [{ name: 'Home' }]
+        routes: [{ name: 'MainTabs' }]
       });
 
     } catch (error) {
@@ -380,11 +399,14 @@ export default function SetupInitial() {
                 <Text style={styles.tituloTela}>{tela.titulo}</Text>
                 <Text style={styles.descricaoTela}>{tela.descricao}</Text>
 
-                {tela.campos.map((campo, campoIndex) => (
+                {tela.campos.map((campo) => (
                   
-                  <View key={campo.key} style={styles.campoContainer}>
+                  <View style={styles.campoContainer}>
                   
-                    <Text style={styles.campoLabel}> {campo.icone} {campo.label} </Text>
+                    <View style={styles.campoLabelContainer}>
+                      <Image source={getIconePorKey(campo.key)} style={styles.campoIcone} />
+                      <Text style={styles.campoLabel}>{campo.label}</Text>
+                    </View>
                     
                     <View style={styles.inputContainer}>
                       
@@ -408,7 +430,8 @@ export default function SetupInitial() {
                  
                  <View style={styles.resumoCard}>
                  
-                    <Text style={styles.resumoTitulo}>📊 Resumo das rendas</Text>
+                    <Text style={styles.resumoTitulo}>
+                      <Image style={styles.resumoIcon} source={require('../../assets/grafico.png')} />Resumo das rendas</Text>
                  
                     <View style={styles.resumoLinha}>
                         
@@ -453,7 +476,7 @@ export default function SetupInitial() {
           {isLoading ? (
             <ActivityIndicator color="#FFF" />
           ) : (
-            <Text style={styles.botaoConcluirTexto}>Concluir</Text>
+            <Text style={styles.botaoAvancarTexto}>Concluir</Text>
           )}
             
           </TouchableOpacity>
@@ -546,7 +569,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Cabin_700Bold',
     color: '#0f248d',
-    marginBottom: 8,
   },
 
   inputContainer: {
@@ -607,6 +629,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
+  resumoIcon: {
+    width: 18,
+    height: 18,
+    marginRight: 5
+  },
+
   resumoLinha: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -657,11 +685,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 20,
     alignItems: 'center',
+    paddingVertical: 5
   },
 
   botaoAvancarTexto: {
     color: '#FFF',
-    fontSize: 25,
+    fontSize: 22,
     fontFamily: 'Alatsi_400Regular'
   },
 
@@ -669,10 +698,16 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
 
-  botaoConcluirTexto: {
-    color: '#FFF',
-    fontSize: 25,
-    fontWeight: 'bold',
+  campoLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  
+  campoIcone: {
+    width: 18,
+    height: 18,
+    marginRight: 7,
   },
 
 });
