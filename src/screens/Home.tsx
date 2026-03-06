@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Image } from 'react-native';
 
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -305,7 +305,8 @@ export default function Home() {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           
           <View style={styles.header}>
-            <Text style={styles.title}>👋 Bem-vindo, {user?.name || 'Usuário'}!</Text>
+            <Text style={styles.title}>
+              <Image style={[styles.menuIcon, { marginRight: 10}]} source={require('../../assets/mao-acenando.png')} />Bem-vindo, {user?.name || 'Usuário'}!</Text>
             <Text style={styles.subtitle}>Vamos configurar suas finanças!!</Text>
           </View>
 
@@ -362,7 +363,7 @@ export default function Home() {
     <ScrollView contentContainerStyle={styles.dashboardContent}>
       
       <View style={styles.header}>
-        <Text style={styles.title}>💰 FinanceRS</Text>
+        <Text style={styles.title}> <Image style={styles.menuIcon} source={require('../../assets/bolsa-de-dinheiro.png')}/> FinanceRS</Text>
         <Text style={styles.greeting}>Olá, {user?.name}!</Text>
       </View>
 
@@ -451,17 +452,17 @@ export default function Home() {
         <View style={styles.actionButtons}>
           
           <TouchableOpacity style={[styles.actionButton, styles.incomeButton]} onPress={() => navigation.navigate('AddIncome')}>
-            <Text style={styles.actionButtonIcon}>💰</Text>
+            <Image style={[styles.menuIcon, { marginBottom: 5}]} source={require('../../assets/bolsa-de-dinheiro.png')}/>
             <Text style={styles.actionButtonText}>Nova renda</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.actionButton, styles.expenseButton]} onPress={() => navigation.navigate('AddExpense')}>
-            <Text style={styles.actionButtonIcon}>💸</Text>
+            <Image style={[styles.menuIcon, { marginBottom: 5}]} source={require('../../assets/real-brasileiro.png')}/>
             <Text style={styles.actionButtonText}>Nova despesa</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.actionButton, styles.investmentButton]} onPress={() => navigation.navigate('AddInvestment')}>
-            <Text style={styles.actionButtonIcon}>📈</Text>
+            <Image style={[styles.menuIcon, { marginBottom: 5}]} source={require('../../assets/retorno-do-investimento.png')}/>
             <Text style={styles.actionButtonText}>Caixinha</Text>
           </TouchableOpacity>
 
@@ -540,19 +541,23 @@ export default function Home() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
          
           <View style={styles.categoryChip}>
-            <Text style={styles.categoryChipText}>🏠 Moradia</Text>
+            <Text style={styles.categoryChipText}>
+              <Image style={styles.categoryIcon} source={require('../../assets/home.png')} /> Moradia</Text>
           </View>
 
           <View style={styles.categoryChip}>
-            <Text style={styles.categoryChipText}>🍔 Alimentação</Text>
+            <Text style={styles.categoryChipText}>
+              <Image style={styles.categoryIcon} source={require('../../assets/burguer.png')} /> Alimentação</Text>
           </View>
 
           <View style={styles.categoryChip}>
-            <Text style={styles.categoryChipText}>🚗 Transporte</Text>
+            <Text style={styles.categoryChipText}>
+              <Image style={styles.categoryIcon} source={require('../../assets/carro.png')} />Transporte</Text>
           </View>
 
           <View style={styles.categoryChip}>
-            <Text style={styles.categoryChipText}>🎮 Lazer</Text>
+            <Text style={styles.categoryChipText}>
+              <Image style={styles.categoryIcon} source={require('../../assets/controle-de-video-game.png')} />Lazer</Text>
           </View>
 
         </ScrollView>
@@ -831,11 +836,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#ee00ff',
   },
 
-  actionButtonIcon: {
-    fontSize: 24,
-    marginBottom: 5,
-  },
-
   actionButtonText: {
     color: '#FFF',
     fontSize: 14,
@@ -900,6 +900,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Cabin_400Regular',
   },
 
+  categoryIcon: {
+    width: 16,
+    height: 16,
+    marginRight: 5
+  },
+
   logoutButton: {
     position: 'absolute',
     bottom: 40,
@@ -916,4 +922,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter_400Regular',
   },
+
+  menuIcon: {
+    width: 32,
+    height: 32,
+    marginRight: 5
+  }
 });

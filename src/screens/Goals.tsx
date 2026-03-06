@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, TextInput, Alert, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, TextInput, Alert, Modal, Image } from 'react-native';
+
+import DraggableFlatList from 'react-native-draggable-flatlist';
+import { ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlist';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useAuth } from '../contexts/AuthContext'; 
 import { db } from '../services/firebase';
-import { collection, doc, getDocs, addDoc, updateDoc, deleteDoc} from 'firebase/firestore';
+import { collection, doc, getDocs, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 
 interface Meta {
   id: string;
@@ -12,6 +16,7 @@ interface Meta {
   dataConclusao?: Date | null;
   concluida: boolean;
   criadoEm: Date;
+  ordem?: number;
 }
 
 export default function Goals() {
@@ -50,19 +55,20 @@ export default function Goals() {
       const metasRef = collection(db, 'users', user.uid, 'metas');
       const snapshot = await getDocs(metasRef);
 
-      const metasCarregadas = snapshot.docs.map(doc => ({
+      let metasCarregadas = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         criadoEm: doc.data().criadoEm?.toDate?.() || new Date(),
+        ordem: doc.data().ordem || 0,
       })) as Meta[];
 
       metasCarregadas.sort((a, b) => {
 
-        if (a.concluida === b.concluida) {
-          return b.criadoEm.getTime() - a.criadoEm.getTime();
+        if (a.ordem !== undefined && b.ordem !== undefined) {
+          return a.ordem - b.ordem;
         }
 
-        return a.concluida ? 1 : -1;
+        return b.criadoEm.getTime() - a.criadoEm.getTime();
 
       });
 
@@ -75,6 +81,28 @@ export default function Goals() {
    
     } finally {
       setLoading(false);
+    }
+
+  };
+
+  const salvarOrdem = async(novasMetas: Meta[]) => {
+
+    if (!user?.uid) return;
+
+    try {
+
+      setMetas(novasMetas);
+
+      const batch = [];
+
+      for (let i=0; i < novasMetas.length; i++) {
+        const meta = novasMetas[i];
+        const metaRef = doc(db, 'users', user.uid, 'metas', meta.id);
+        await updateDoc(metaRef, { ordem: i});
+      }
+
+    } catch (error) {
+      console.error('Erro ao salvar ordem:', error);
     }
 
   };
@@ -94,12 +122,14 @@ export default function Goals() {
 
       setSalvando(true);
       const metasRef = collection(db, 'users', user.uid, 'metas');
+      const novaOrdem = metas.length;
 
       const novaMeta = {
         titulo: novaMetaTitulo.trim(),
         valor: valorNumerico,
         concluida: false,
         criadoEm: new Date(),
+        ordem: novaOrdem,
       };
 
       const docRef = await addDoc(metasRef, novaMeta);
@@ -163,7 +193,16 @@ export default function Goals() {
 
       const metaRef = doc(db, 'users', user.uid, 'metas', metaParaExcluir.id);
       await deleteDoc(metaRef);
-      setMetas(prev => prev.filter(m => m.id !== metaParaExcluir.id));
+      
+      const novasMetas = metas.filter(m => m.id !== metaParaExcluir.id);
+
+      for (let i=0; i < novasMetas.length; i++) {
+        const meta = novasMetas[i];
+        const metaRef = doc(db, 'users', user.uid, 'metas', meta.id);
+        await updateDoc(metaRef, { ordem: i })
+      }
+
+      setMetas(novasMetas);
       setShowDeleteModal(false);
       setMetaParaExcluir(null);
 
@@ -238,6 +277,62 @@ export default function Goals() {
     return valor.toFixed(2).replace('.', ',');
   };
 
+  const renderItem = ({ item, drag, isActive }: RenderItemParams<Meta>) => {
+
+    return (
+
+      <ScaleDecorator>
+
+        <TouchableOpacity onLongPress={drag} disabled={isActive} activeOpacity={0.0} style={[ styles.metaItem, item.concluida &&
+        styles.metaItemConcluida, isActive && styles.metaItemAtivo]}>
+
+          <TouchableOpacity style={styles.metaCheckbox} onPress={() => toggleMeta(item)}>
+            
+            <View style={[ styles.checkbox, item.concluida && item.concluida && styles.checkboxConcluido ]}>
+              
+              {item.concluida && (
+                <Text style={styles.checkboxIcon}>✓</Text>
+              )}
+
+            </View>
+
+          </TouchableOpacity>
+
+          <View style={styles.metaInfo}>
+            
+            <Text style={[ styles.metaTitulo, item.concluida && styles.metaTituloConcluida]}> {item.titulo} </Text>
+            
+            {item.valor > 0 && (
+              <Text style={[ styles.metaValor, item.concluida && styles.metaValorConcluida ]}> {formatarValor(item.valor)} </Text>
+            )}
+
+            {item.concluida && item.dataConclusao && (
+              <Text style={styles.metaData}> ✓ Concluída em {item.dataConclusao.toLocaleDateString('pt-BR')} </Text>
+            )}
+
+          </View>
+
+          <View style={styles.metaAcoes}>
+
+            <TouchableOpacity style={styles.botaoEditar} onPress={() => editarMeta(item)}>
+              <Image style={styles.botaoEditarIcon} source={require('../../assets/editar.png')}/>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.botaoExcluir} onPress={() => confirmarExclusao(item)}>
+              <Image style={styles.botaoExcluirIcon} source={require('../../assets/excluir.png')}/>
+            </TouchableOpacity>
+
+            <View style={styles.dragHandle}>
+              <Text style={styles.dragIcon}>⋮⋮</Text>
+            </View>
+
+          </View>
+
+        </TouchableOpacity>
+      </ScaleDecorator>
+    );
+  };
+
   if (loading) {
    
     return (
@@ -251,231 +346,182 @@ export default function Goals() {
   }
 
   return (
-  
-  <View style={styles.container}>
 
-    <View style={styles.header}>    
-      <Text style={styles.title}>🎯 Metas</Text>
-      <Text style={styles.subtitle}> {metas.filter(m => m.concluida).length}/{metas.length} concluídas </Text>
-    </View>
-
-    {!mostrarInput ? (
+    <GestureHandlerRootView style={{ flex: 1 }}>
       
-      <TouchableOpacity style={styles.botaoAdicionar} onPress={() => setMostrarInput(true)}>
-        <Text style={styles.botaoAdicionarIcon}>+</Text>
-        <Text style={styles.botaoAdicionarText}>Nova meta</Text>
-      </TouchableOpacity>
+      <View style={styles.container}>
 
-    ) : (
+        <View style={styles.header}>    
+          <Text style={styles.title}>Metas</Text>
+          <Text style={styles.subtitle}> {metas.filter(m => m.concluida).length}/{metas.length} concluídas </Text>
+        </View>
+      
+        {!mostrarInput ? (
+        
+        <TouchableOpacity style={styles.botaoAdicionar} onPress={() => setMostrarInput(true)}>
+          <Text style={styles.botaoAdicionarIcon}>+</Text> <Text style={styles.botaoAdicionarText}>Nova meta</Text>
+        </TouchableOpacity>
+      
+        ) : (
+        
+        <View style={styles.inputContainer}>
+          
+          <Text style={styles.inputLabel}>Título da meta</Text>
+    
+          <TextInput style={styles.input} placeholder="Ex: Juntar 10 mil reais" placeholderTextColor="#8581FF" value={novaMetaTitulo}
+          onChangeText={setNovaMetaTitulo} autoFocus />
+
+          <Text style={styles.inputLabel}> Valor (opcional)</Text>
+   
+          <View style={styles.inputValorContainer}>
+      
+            <Text style={styles.inputValorSimbolo}>R$</Text>
      
-      <View style={styles.inputContainer}>
-        
-        <Text style={styles.inputLabel}>Título da meta</Text>
-        
-        <TextInput style={styles.input} placeholder="Ex: Juntar 10 mil reais" placeholderTextColor="#8581FF" value={novaMetaTitulo}
-        onChangeText={setNovaMetaTitulo} autoFocus />
- 
-        <Text style={styles.inputLabel}> Valor (opcional)</Text>
-       
-        <View style={styles.inputValorContainer}>
-          
-          <Text style={styles.inputValorSimbolo}>R$</Text>
-         
-          <TextInput style={styles.inputValor} placeholder="0,00" placeholderTextColor="#8581FF" value={novaMetaValor} onChangeText={(
-          text) => setNovaMetaValor(formatarParaDinheiro(text))} keyboardType="numeric" />
+            <TextInput style={styles.inputValor} placeholder="0,00" placeholderTextColor="#8581FF" value={novaMetaValor} onChangeText={(
+            text) => setNovaMetaValor(formatarParaDinheiro(text))} keyboardType="numeric" />
 
-        </View>
+          </View>
 
-        <View style={styles.inputBotoes}>
-          
-          <TouchableOpacity style={styles.botaoCancelar} onPress={() => {
-            setMostrarInput(false);
-            setNovaMetaTitulo('');
-            setNovaMetaValor('');
-          }}>
-
-            <Text style={styles.botaoCancelarText}>Cancelar</Text>
-
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.botaoSalvar, salvando && styles.botaoSalvarDisabled]} onPress={adicionarMeta} disabled={salvando}>
-            
-            {salvando ? (
-              <ActivityIndicator color="#FFF" size="small" />
-            ) : (
-              <Text style={styles.botaoSalvarText}>Adicionar</Text>
-            )}
-
-          </TouchableOpacity>
-
-        </View>
-      </View>
-    )}
-
-    <ScrollView style={styles.listaContainer} showsVerticalScrollIndicator={false}>
+          <View style={styles.inputBotoes}>
       
-      {metas.length === 0 ? (
-        
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>🎯</Text>
-          <Text style={styles.emptyTitle}>Nenhuma meta ainda</Text>
-          <Text style={styles.emptyText}> Adicione sua primeira meta financeira! </Text>
-        </View>
+            <TouchableOpacity style={styles.botaoCancelar} onPress={() => {
+              setMostrarInput(false);
+              setNovaMetaTitulo('');
+              setNovaMetaValor('');
+            }}>
 
-      ) : (
+              <Text style={styles.botaoCancelarText}>Cancelar</Text>
+
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={[styles.botaoSalvar, salvando && styles.botaoSalvarDisabled]} onPress={adicionarMeta} disabled={salvando}>
+              
+              {salvando ? (
+                <ActivityIndicator color="#FFF" size="small" />
+              ) : (
+                <Text style={styles.botaoSalvarText}>Adicionar</Text>
+              )}
+
+            </TouchableOpacity>
+
+          </View>
+        </View>
+        )}
         
-        metas.map((meta) => (
-          
-          <View key={meta.id} style={[ styles.metaItem, meta.concluida && styles.metaItemConcluida ]}>
-            
-            <TouchableOpacity style={styles.metaCheckbox} onPress={() => toggleMeta(meta)}>
-            
-              <View style={[ styles.checkbox, meta.concluida && styles.checkboxConcluido]}>
-               
-                {meta.concluida && (
-                  <Text style={styles.checkboxIcon}>✓</Text>
-                )}
+        <DraggableFlatList data={metas} keyExtractor={(item) => item.id} renderItem={renderItem} onDragEnd={({ data }) => salvarOrdem(data)}
+        contentContainerStyle={styles.listaContainer} showsVerticalScrollIndicator={false} ListEmptyComponent={
+        
+          <View style={styles.emptyContainer}>
+            <Image style={styles.menuIcon} source={require('../../assets/alvo.png')}/>
+            <Text style={styles.emptyTitle}>Nenhuma meta ainda</Text>
+            <Text style={styles.emptyText}> Adicione sua primeira meta! </Text>
+          </View>
+
+        } />
+        
+        <Modal visible={showEditModal} transparent animationType='slide' onRequestClose={() => {
+          setShowEditModal(false);
+          setMetaParaEditar(null);
+          setEditForm({ titulo: '', valor: '' });
+        }}>
+    
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContentEdit}>
+      
+              <View style={styles.modalHeader}>
+
+                <Text style={styles.modalTitleEdit}> Editar meta </Text>
+
+                <TouchableOpacity onPress={() => { setShowEditModal(false); setMetaParaEditar(null); setEditForm({ titulo: '', valor: '' }); }}>
+                  <Text style={styles.modalCloseText}> ✕ </Text>
+                </TouchableOpacity>
 
               </View>
-            </TouchableOpacity>
-
-            <View style={styles.metaInfo}>
               
-              <Text style={[ styles.metaTitulo, meta.concluida && styles.metaTituloConcluida ]}> {meta.titulo} </Text>
-              
-              {meta.valor > 0 && (     
-                <Text style={[ styles.metaValor, meta.concluida && styles.metaValorConcluida ]}> {formatarValor(meta.valor)} </Text>
-              )}
+              <View style={styles.modalBody}>
 
-              {meta.concluida && meta.dataConclusao && (
-                
-                <Text style={styles.metaData}> ✓ Concluída em {meta.dataConclusao.toLocaleDateString('pt-BR')} </Text>
-              )}
-
-            </View>
-
-            <View style={styles.metaAcoes}>
-              
-              <TouchableOpacity style={styles.botaoEditar} onPress={() => editarMeta(meta)}>
-                <Text style={styles.botaoEditarIcon}>✏️</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.botaoExcluir} onPress={() => confirmarExclusao(meta)}>
-                <Text style={styles.botaoExcluirIcon}>🗑️</Text>
-              </TouchableOpacity>
-
-            </View>
-
-          </View>
-        ))
-      )}
-      
-      <View style={styles.bottomSpacing} />
-
-    </ScrollView>
-
-    <Modal visible={showEditModal} transparent animationType='slide' onRequestClose={() => {
-      setShowEditModal(false);
-      setMetaParaEditar(null);
-      setEditForm({ titulo: '', valor: '' });
-    }}>
-
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContentEdit}>
-          
-          <View style={styles.modalHeader}>
-
-            <Text style={styles.modalTitleEdit}> Editar meta </Text>
-
-            <TouchableOpacity onPress={() => { setShowEditModal(false); setMetaParaEditar(null); setEditForm({ titulo: '', valor: '' }); }}>
-              <Text style={styles.modalCloseText}> ✕ </Text>
-            </TouchableOpacity>
-
-          </View>
-
-          <View style={styles.modalBody}>
-
-            <Text style={styles.modalLabel}> Título </Text>
-            
-            <TextInput style={styles.modalInput} placeholder='Ex: juntar 10 mil reais' placeholderTextColor='#8581FF' value=
-            {editForm.titulo} onChangeText={(text) => setEditForm(prev => ({ ...prev, titulo: text }))} />
-
-            <Text style={styles.modalLabel}> Valor (opcional) </Text>
-
-            <View style={styles.modalValorContainer}>             
-              <Text style={styles.modalValorSimbolo}> R$ </Text>
-              <TextInput style={styles.modalValorInput} placeholder='0,00' placeholderTextColor='#8581FF' value={editForm.valor}
-              onChangeText={(text) => setEditForm(prev => ({ ...prev, valor: formatarParaDinheiro(text) }))} keyboardType='numeric' />       
-            </View>
-
-            <View style={styles.modalButtons}>
-            
-              <TouchableOpacity style={styles.modalCancelButton} onPress={() => {
-                setShowEditModal(false);
-                setMetaParaEditar(null);
-                setEditForm({ titulo: '', valor: '' })
-              }}>
-              
-                <Text style={styles.modalCancelText}>Cancelar</Text>
-            
-              </TouchableOpacity>
-
-              <TouchableOpacity style={[styles.modalSaveButton, salvando && styles.modalSaveButtonDisabled]} onPress={salvarEdicao} disabled={salvando}>
-              
-                {salvando ? (
-                  <ActivityIndicator color="#FFF" size="small" />
-                ) : (
-                  <Text style={styles.modalSaveText}>Salvar</Text>
-                )}
-
-              </TouchableOpacity>
-
-            </View>
-
-          </View>
-        </View>
-      </View>
-    </Modal>
-
-    <Modal visible={showDeleteModal} transparent animationType="fade" onRequestClose={() => {
-      setShowDeleteModal(false);
-      setMetaParaExcluir(null);
-    }}>
+                <Text style={styles.modalLabel}> Título </Text>
         
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-            
-          <Text style={styles.modalTitle}>Excluir meta</Text>
-          <Text style={styles.modalText}> Tem certeza que deseja excluir a meta: </Text>
-          <Text style={styles.modalMetaNome}> "{metaParaExcluir?.titulo}" </Text>
-            
-          {metaParaExcluir && metaParaExcluir.valor > 0 && (
-            <Text style={styles.modalMetaValor}> {formatarValor(metaParaExcluir.valor)} </Text>
-          )}
-            
-          <Text style={styles.modalWarning}> ⚠️ Esta ação não pode ser desfeita </Text>
+                <TextInput style={styles.modalInput} placeholder='Ex: juntar 10 mil reais' placeholderTextColor='#8581FF' value=
+                {editForm.titulo} onChangeText={(text) => setEditForm(prev => ({ ...prev, titulo: text }))} />
+                  
+                <Text style={styles.modalLabel}> Valor (opcional) </Text>
 
-          <View style={styles.modalButtons}>
-            
-            <TouchableOpacity style={styles.modalCancelButton} onPress={() => {
-              setShowDeleteModal(false);
-              setMetaParaExcluir(null);
-            }}>
-              
-              <Text style={styles.modalCancelText}>Cancelar</Text>
-            
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.modalConfirmButton} onPress={excluirMeta}>
-              <Text style={styles.modalConfirmText}>Excluir</Text>
-            </TouchableOpacity>
-
-          </View>
+                <View style={styles.modalValorContainer}>             
+                  <Text style={styles.modalValorSimbolo}> R$ </Text>
+                  <TextInput style={styles.modalValorInput} placeholder='0,00' placeholderTextColor='#8581FF' value={editForm.valor}
+                  onChangeText={(text) => setEditForm(prev => ({ ...prev, valor: formatarParaDinheiro(text) }))} keyboardType='numeric' />       
+                </View>
+                  
+                <View style={styles.modalButtons}>
+                    
+                  <TouchableOpacity style={styles.modalCancelButton} onPress={() => {
+                    setShowEditModal(false);
+                    setMetaParaEditar(null);
+                    setEditForm({ titulo: '', valor: '' })
+                  }}>
           
-        </View>
+                    <Text style={styles.modalCancelText}>Cancelar</Text>
+        
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={[styles.modalSaveButton, salvando && styles.modalSaveButtonDisabled]} onPress={salvarEdicao} disabled={salvando}>
+          
+                    {salvando ? (
+                      <ActivityIndicator color="#FFF" size="small" />
+                    ) : (
+                      <Text style={styles.modalSaveText}>Salvar</Text>
+                    )}
+
+                  </TouchableOpacity>
+
+                </View>
+
+              </View>
+            </View>
+          </View>
+        </Modal>
+        
+        <Modal visible={showDeleteModal} transparent animationType="fade" onRequestClose={() => {
+          setShowDeleteModal(false);
+          setMetaParaExcluir(null);
+        }}>
+          
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+        
+              <Text style={styles.modalTitle}>Excluir meta</Text>
+              <Text style={styles.modalText}> Tem certeza que deseja excluir a meta: </Text>
+              <Text style={styles.modalMetaNome}> "{metaParaExcluir?.titulo}" </Text>
+        
+              {metaParaExcluir && metaParaExcluir.valor > 0 && (
+                <Text style={styles.modalMetaValor}> {formatarValor(metaParaExcluir.valor)} </Text>
+              )}
+        
+              <Text style={styles.modalWarning}> ⚠️ Esta ação não pode ser desfeita </Text>
+
+              <View style={styles.modalButtons}>
+        
+                <TouchableOpacity style={styles.modalCancelButton} onPress={() => {
+                  setShowDeleteModal(false);
+                  setMetaParaExcluir(null);
+                }}>
+          
+                  <Text style={styles.modalCancelText}>Cancelar</Text>
+        
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.modalConfirmButton} onPress={excluirMeta}>
+                  <Text style={styles.modalConfirmText}>Excluir</Text>
+                </TouchableOpacity>
+
+              </View>
+      
+            </View>
+          </View>
+        </Modal>
       </View>
-    </Modal>
-  </View>
+    </GestureHandlerRootView>
   );
 }
 
@@ -645,12 +691,6 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
 
-  emptyIcon: {
-    fontSize: 60,
-    color: '#0f248d',
-    marginBottom: 20,
-  },
-
   emptyTitle: {
     fontSize: 18,
     fontFamily: 'Cabin_700Bold',
@@ -714,7 +754,7 @@ const styles = StyleSheet.create({
 
   metaTitulo: {
     fontSize: 16,
-    color: '#333',
+    color: '#0f248d',
     marginBottom: 4,
     fontFamily: 'Cabin_700Bold',
   },
@@ -745,23 +785,29 @@ const styles = StyleSheet.create({
     padding: 8,
   },
 
-  botaoExcluirIcon: {
-    fontSize: 18,
-  },
-
   metaAcoes: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   
   botaoEditar: {
-    padding: 8,
-    marginRight: 5,
+    padding: 5,
   },
   
   botaoEditarIcon: {
-    fontSize: 18,
-    color: '#0f248d',
+    width: 18,
+    height: 18
+  },
+
+  botaoExcluirIcon: {
+    width: 22,
+    height: 22
+  },
+
+  menuIcon: {
+    width: 38,
+    height: 38,
+    marginBottom: 20
   },
 
   bottomSpacing: {
@@ -953,6 +999,28 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontFamily: 'Cabin_700Bold',
+  },
+
+  metaItemAtivo: {
+    backgroundColor: '#F0EFFF',
+    transform: [{ scale: 1.02 }],
+    shadowColor: '#0f248d',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 8,
+  },
+
+  dragHandle: {
+    padding: 8,
+    marginLeft: 2,
+  },
+
+  dragIcon: {
+    fontSize: 20,
+    color: '#aab3ff',
+    fontWeight: 'bold',
+    letterSpacing: -2,
   },
 
 })

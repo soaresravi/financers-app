@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform, Image } from 'react-native';
 
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
@@ -109,7 +109,7 @@ export default function EsqueciSenha() {
           </TouchableOpacity>
 
           <View style={styles.infoBox}>     
-            <Text style={styles.infoIcon}>💡</Text>
+            <Image style={styles.infoIcon} source={require('../../assets/lampada.png')} />
             <Text style={styles.infoText}> O link expira em 1 hora. Verifique também sua caixa de spam! </Text>
           </View>
 
@@ -238,8 +238,9 @@ const styles = StyleSheet.create({
   },
 
   infoIcon: {
-    fontSize: 20,
-    marginRight: 10
+    width: 23,
+    height: 23,
+    marginRight: 5
   },
 
   infoText: {

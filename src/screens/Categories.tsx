@@ -27,19 +27,19 @@ interface Categoria {
 }
 
 const categoriasPadraoDespesas: Categoria[] = [
-  { id: 'moradia', nome: '🏠 Moradia', tipo: 'despesa', personalizada: false},
-  { id: 'alimentacao', nome: '🍔 Alimentação', tipo: 'despesa', personalizada: false},
-  { id: 'transporte', nome: '🚗 Transporte', tipo: 'despesa', personalizada: false},
-  { id: 'lazer', nome: '🎮 Lazer', tipo: 'despesa', personalizada: false},
-  { id: 'saude', nome: '🏥 Saúde', tipo: 'despesa', personalizada: false},
-  { id: 'educacao', nome: '📚 Educação', tipo: 'despesa', personalizada: false},
-  { id: 'outros', nome: '📦 Outros', tipo: 'despesa', personalizada: false},
+  { id: 'moradia', nome: 'Moradia', tipo: 'despesa', personalizada: false},
+  { id: 'alimentacao', nome: 'Alimentação', tipo: 'despesa', personalizada: false},
+  { id: 'transporte', nome: 'Transporte', tipo: 'despesa', personalizada: false},
+  { id: 'lazer', nome: 'Lazer', tipo: 'despesa', personalizada: false},
+  { id: 'saude', nome: 'Saúde', tipo: 'despesa', personalizada: false},
+  { id: 'educacao', nome: 'Educação', tipo: 'despesa', personalizada: false},
+  { id: 'outros', nome: 'Outros', tipo: 'despesa', personalizada: false},
 ];
 
 const categoriasPadraoInvestimentos: Categoria[] = [
-  { id: 'reserva', nome: '💰 Reserva de emergência', tipo: 'investimento', personalizada: false },
-  { id: 'investimentos', nome: '📈 Investimentos & CDB', tipo: 'investimento', personalizada: false },
-  { id: 'outros', nome: '📦 Outros', tipo: 'investimento', personalizada: false },
+  { id: 'reserva', nome: 'Reserva de emergência', tipo: 'investimento', personalizada: false },
+  { id: 'investimentos', nome: 'Investimentos & CDB', tipo: 'investimento', personalizada: false },
+  { id: 'outros', nome: 'Outros', tipo: 'investimento', personalizada: false },
 ];
 
 export default function Categories() {

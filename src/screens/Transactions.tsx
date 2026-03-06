@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl, Alert, SectionList, TextInput, Modal, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl, Alert, SectionList, TextInput, Modal, Image } from 'react-native';
 
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -44,11 +44,11 @@ interface TransacaoAgrupada {
 }
 
 const categoriasPadraoDespesa = [
-  '🏠 Moradia', '🍔 Alimentação', '🚗 Transporte', '🎮 Lazer', '🏥 Saúde', '📚 Educação', '📦 Outros'
+  'Moradia', 'Alimentação', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Outros'
 ];
 
 const categoriasPadraoInvestimento = [
-  '💰 Reserva de emergência', '📈 Investimentos & CDB', '📦 Outros'
+  'Reserva de emergência', 'Investimentos & CDB', 'Outros'
 ];
 
 export default function Transactions() {
@@ -564,6 +564,21 @@ export default function Transactions() {
     const valor = parseInt(numbers, 10) / 100;
     return valor.toFixed(2).replace('.', ',');
   };
+
+  const getTipoIcone = (tipo: string): any => {
+
+    switch (tipo) {
+      
+      case 'renda':
+        return require('../../assets/bolsa-de-dinheiro.png');
+      case 'despesa':
+        return require('../../assets/real-brasileiro.png');
+      case 'investimento':
+        return require('../../assets/grafico.png');
+
+    }
+    
+  };
   
   const getTipoInfo = (tipo: TransacaoTipo, subtipoOuTipo?: string) => {
   
@@ -574,19 +589,15 @@ export default function Transactions() {
       switch (tipo) {
        
         case 'renda':
-          return { icon: '💰', color: '#00d2a8', label: subtipo === 'recorrente' ? 'Renda recorrente' : 'Renda extra', };
+          return { label: subtipo === 'recorrente' ? 'Renda recorrente' : 'Renda extra', };
         case 'despesa':
-          return { icon: '💸', color: '#F44336', label: subtipo === 'fixa' ? 'Despesa fixa' : 'Despesa variável', };
+          return { label: subtipo === 'fixa' ? 'Despesa fixa' : 'Despesa variável', };
 
       }
 
     }
     
-    return {
-      icon: '📈',
-      color: '#ee00ff',
-      label: 'Caixinha',
-    };
+    return { label: 'Caixinha', };
 
   };
   
@@ -658,20 +669,16 @@ export default function Transactions() {
         <Text style={[ styles.transacaoValor, isDespesaOuInvestimento ? styles.valorNegativo : styles.valorPositivo,  isPrevisto && styles.valorPrevisto]}>
         {isDespesaOuInvestimento ? '-' : '+'} {valorFormatado} </Text>
 
-        {isPrevisto && (
-          <Text style={styles.previstoIndicador}>⏱️</Text>
-        )}
-
       </View>
 
       <View style={styles.transacaoAcoes}>
         
         <TouchableOpacity style={styles.acaoButton} onPress={() => editarTransacao(item)}>
-          <Text style={[styles.acaoIcon, styles.editarIcon]}>✏️</Text>
+          <Image style={styles.editarIcon} source={require('../../assets/editar.png')}/>
         </TouchableOpacity>
           
         <TouchableOpacity style={styles.acaoButton} onPress={() => { setTransacaoParaExcluir(item); setShowDeleteModal(true); }}>
-          <Text style={[styles.acaoIcon, styles.excluirIcon]}>🗑️</Text>
+          <Image style={styles.excluirIcon} source={require('../../assets/excluir.png')}/>
         </TouchableOpacity>
 
       </View>
@@ -703,7 +710,7 @@ export default function Transactions() {
 
       <TouchableOpacity style={styles.filtroToggleButton} onPress={() => setShowFiltroAvancado(!showFiltroAvancado)}>
         
-        <Text style={styles.filtroToggleIcon}>📅</Text>
+        <Image style={styles.menuIcon} source={require('../../assets/calendario.png')}/>
         <Text style={styles.filtroToggleText}> {showFiltroAvancado ? 'Ocultar filtros' : 'Filtrar por período'}</Text>
         <Text style={styles.filtroToggleArrow}> {showFiltroAvancado ? '▼' : '▶'} </Text>
 
@@ -949,9 +956,13 @@ export default function Transactions() {
           
           <TouchableOpacity key={tipo} style={[ styles.filtroTipoButton, filtroTipo === tipo && styles.filtroTipoButtonAtivo]} onPress=
           {() => setFiltroTipo(tipo)}>
+
+            {tipo !== 'todos' && (
+              <Image source={getTipoIcone(tipo)} style={styles.filtroTipoIcone} />
+            )}
             
             <Text style={[ styles.filtroTipoText, filtroTipo === tipo && styles.filtroTipoTextAtivo ]}> {tipo === 'todos' ? 'Todos' :
-            tipo === 'renda' ? '💰 Rendas' : tipo === 'despesa' ? '💸 Despesas' : '📈 Invest.'} </Text>
+            tipo === 'renda' ? 'Rendas' : tipo === 'despesa' ? 'Despesas' : 'Invest.'} </Text>
 
           </TouchableOpacity>
 
@@ -982,7 +993,7 @@ export default function Transactions() {
       
       <View style={styles.emptyContainer}>
         
-        <Text style={styles.emptyIcon}>📄</Text>
+        <Image style={styles.emptyIcon} source={require('../../assets/administrative-transactions.png')}/>
         <Text style={styles.emptyTitle}>Nenhuma transação encontrada</Text>
         <Text style={styles.emptyText}> {busca || filtroTipo !== 'todos' ? 'Tente ajustar os filtros ou a busca' : 'Adicione sua primeira transação!'} </Text>
       
@@ -1284,6 +1295,8 @@ const styles = StyleSheet.create({
   },
   
   filtroTipoButton: {
+    flexDirection: 'row', 
+    alignItems: 'center',  
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
@@ -1470,11 +1483,13 @@ const styles = StyleSheet.create({
   },
 
   editarIcon: {
-    color: '#0f248d',
+    width: 18,
+    height: 18
   },
 
   excluirIcon: {
-    color: '#F44336',
+    width: 22,
+    height: 22
   },
   
   emptyContainer: {
@@ -1485,9 +1500,9 @@ const styles = StyleSheet.create({
   },
 
   emptyIcon: {
-    fontSize: 60,
+    width: 40,
+    height: 40,
     marginBottom: 20,
-    color: '#0f248d',
   },
 
   emptyTitle: {
@@ -1808,12 +1823,6 @@ const styles = StyleSheet.create({
     opacity: 0.7,
     fontStyle: 'italic',
   },
-  
-  previstoIndicador: {
-    fontSize: 12,
-    color: '#FF9800',
-    marginLeft: 5,
-  },
 
   filtroAvancadoContainer: {
     marginTop: 10,
@@ -1829,9 +1838,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   
-  filtroToggleIcon: {
-    fontSize: 18,
-    marginRight: 8,
+  menuIcon: {
+    width: 22,
+    height: 22,
+    marginRight: 8
   },
   
   filtroToggleText: {
@@ -1988,6 +1998,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#F44336',
     paddingHorizontal: 5,
+  },
+  
+  filtroTipoIcone: {
+    width: 16,
+    height: 16,
+    marginRight: 4,
   },
 
 })
