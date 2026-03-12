@@ -23,6 +23,7 @@ import Categories from './src/screens/Categories';
 import Transactions from './src/screens/Transactions';
 import Goals from './src/screens/Goals';
 import Settings from './src/screens/Settings';
+import RedefinirSenha from './src/screens/RedefinirSenha';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -37,6 +38,7 @@ export type RootStackParamList = {
   Transactions: undefined;
   Goals: undefined;
   Settings: undefined;
+  RedefinirSenha: undefined;
 };
 
 const Stack = createNativeStackNavigator();
@@ -75,6 +77,7 @@ function AppNavigator() { //verifica se esta carregando os dados do usuario
         <Stack.Screen name="Transactions" component={Transactions} />
         <Stack.Screen name="Goals" component={Goals} />
         <Stack.Screen name="Settings" component={Settings} />
+        <Stack.Screen name="RedefinirSenha" component={RedefinirSenha} />
 
       </>  
     

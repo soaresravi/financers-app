@@ -10,6 +10,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 type RootStackParamList = {
   MainTabs: undefined;
   Login: undefined;
+  RedefinirSenha: undefined;
   Settings: undefined;
 };
 
@@ -64,7 +65,7 @@ export default function Settings() {
 
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.botao}>
+        <TouchableOpacity style={styles.botao} onPress={() => navigation.navigate('RedefinirSenha')}>
           
           <View style={styles.botaoConteudo}>
             <Text style={styles.botaoTexto}>Redefinir senha</Text>
