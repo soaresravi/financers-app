@@ -5,6 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAuth } from '../contexts/AuthContext'; 
+import { useTheme } from '../contexts/ThemeContext';
+
 import { db } from '../services/firebase';
 import { doc, updateDoc, collection, addDoc } from 'firebase/firestore';
 
@@ -98,6 +100,9 @@ export default function SetupInitial() {
 
   const translateX = useRef(new Animated.Value(0)).current;
   const scrollViewRef = useRef<ScrollView>(null);
+
+  const { temaEscuro } = useTheme();
+  const styles = getStyles(temaEscuro);
 
   useEffect(() => {
 
@@ -411,7 +416,7 @@ export default function SetupInitial() {
                     <View style={styles.inputContainer}>
                       
                       <Text style={styles.currencySymbol}>R$</Text>
-                      <TextInput style={styles.input} placeholder={campo.placeholder} placeholderTextColor="#8581FF" value={dados[campo.key] || ''}
+                      <TextInput style={styles.input} placeholder={campo.placeholder} placeholderTextColor={temaEscuro ? '#dadafa' : '#8581FF'} value={dados[campo.key] || ''}
                       onChangeText={(texto) => mudarValor(campo.key, texto)} keyboardType="numeric" returnKeyType="done" />
                       
                       {dados[campo.key] && dados[campo.key] !== '' && (
@@ -488,11 +493,11 @@ export default function SetupInitial() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (temaEscuro: boolean) => StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#dadafa',
+    backgroundColor: temaEscuro ? '#000824' : '#dadafa',
   },
 
   header: {
@@ -509,7 +514,7 @@ const styles = StyleSheet.create({
   },
 
   botaoFecharTexto: {
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     fontSize: 26,
   },
 
@@ -550,13 +555,13 @@ const styles = StyleSheet.create({
   tituloTela: {
     fontSize: 24,
     fontFamily: 'Alatsi_400Regular',
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     marginBottom: 8,
   },
 
   descricaoTela: {
     fontSize: 16,
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     marginBottom: 30,
     fontFamily: 'Cabin_400Regular'
   },
@@ -568,23 +573,23 @@ const styles = StyleSheet.create({
   campoLabel: {
     fontSize: 16,
     fontFamily: 'Cabin_700Bold',
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
   },
 
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#00124d' : '#FFF',
     borderRadius: 10,
     paddingHorizontal: 15,
     borderWidth: 2,
-    borderColor: '#a2acd6',
+    borderColor: temaEscuro ? '#5b6fbe' : '#a2acd6',
   },
 
   currencySymbol: {
     fontSize: 18,
     fontFamily: 'Alatsi_400Regular',
-    color: '#221377',
+    color: temaEscuro ? '#dadafa' : '#221377',
     marginRight: 5,
   },
 
@@ -592,7 +597,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     paddingVertical: 12,
-    color: '#221377',
+    color: temaEscuro ? '#dadafa' : '#221377',
     fontFamily: 'Inter_400Regular'
   },
   
@@ -601,7 +606,7 @@ const styles = StyleSheet.create({
     right: 10,
     top: '50%',
     transform: [{ translateY: -10 }],
-    backgroundColor: '#CECECE',
+    backgroundColor: temaEscuro ? '#0f248d' : '#CECECE',
     borderRadius: 10,
     width: 20,
     height: 20,
@@ -610,7 +615,7 @@ const styles = StyleSheet.create({
   },
 
   botaoLimparTexto: {
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     fontSize: 24,
     fontFamily: 'Cabin_400Regular'
   },
@@ -625,7 +630,7 @@ const styles = StyleSheet.create({
   resumoTitulo: {
     fontSize: 16,
     fontFamily: 'Cabin_700Bold',
-    color: '#FFF',
+    color: temaEscuro ? '#dadafa' : '#FFF',
     marginBottom: 10,
   },
 
@@ -643,7 +648,7 @@ const styles = StyleSheet.create({
 
   resumoLabel: {
     fontSize: 14,
-    color: '#D0CEFF',
+    color: temaEscuro ? '#dadafa' : '#D0CEFF',
     fontFamily: 'Inter_400Regular'
   },
 
@@ -664,7 +669,7 @@ const styles = StyleSheet.create({
   },
 
   botaoVoltar: {
-    backgroundColor: '#a2acd6',
+    backgroundColor: temaEscuro ? '#0f248d' : '#a2acd6',
     borderRadius: 20,
     width: 40,
     height: 31,

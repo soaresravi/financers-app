@@ -7,6 +7,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
 
 import { useAuth } from '../contexts/AuthContext'; 
+import { useTheme } from '../contexts/ThemeContext';
+
 import { db } from '../services/firebase';
 import { collection, doc, getDoc, updateDoc, getDocs, query, where } from 'firebase/firestore';
 import { useDateNavigation } from '../hooks/useDateNavigation';
@@ -47,6 +49,9 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [initialSetup, setInitialSetup] = useState(false);
   const [dadosFinanceiros, setDadosFinanceiros] = useState<any>(null);
+
+  const { temaEscuro } = useTheme();
+  const styles = getStyles(temaEscuro);
 
   const {
     formattedMonthYear,
@@ -565,17 +570,17 @@ export default function Home() {
     </ScrollView>
 
   </View>
-);
+  );
 }
 
 
-const styles = StyleSheet.create({
+const getStyles = (temaEscuro: boolean) => StyleSheet.create({
 
   monthHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#dadafa',
+    backgroundColor: temaEscuro ? '#000824' : '#dadafa',
     paddingHorizontal: 15,
     paddingVertical: 12,
     borderBottomWidth: 1,
@@ -587,7 +592,7 @@ const styles = StyleSheet.create({
   },
 
   monthNavIcon: {
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     fontSize: 24,
     fontFamily: 'Inter_400Regular'
   },
@@ -597,25 +602,25 @@ const styles = StyleSheet.create({
   },
   
   monthText: {
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     fontSize: 18,
     fontFamily: 'Alatsi_400Regular',
   },
   
   container: {
     flex: 1,
-    backgroundColor: '#dadafa',
+    backgroundColor: temaEscuro ? '#000824' : '#dadafa',
   },
 
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#dadafa',
+    backgroundColor: temaEscuro ? '#000824' : '#dadafa',
     justifyContent: 'center',
     alignItems: 'center',
   },
 
   loadingText: {
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     marginTop: 10,
     fontSize: 16,
   },
@@ -639,20 +644,21 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 28,
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     marginBottom: 18,
     fontFamily: 'Alatsi_400Regular',
   },
+
   subtitle: {
     fontSize: 16,
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     paddingBottom: 20,
     fontFamily: 'Inter_400Regular',
   },
 
   greeting: {
     fontSize: 18,
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     marginTop: 5,
     fontFamily: 'Cabin_700Bold',
   },
@@ -806,7 +812,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 23,
     fontFamily: 'Alatsi_400Regular',
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     marginBottom: 15,
   },
 
@@ -881,7 +887,7 @@ const styles = StyleSheet.create({
   },
 
   seeAllText: {
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     fontSize: 14,
     fontFamily: 'Inter_400Regular',
   },

@@ -6,6 +6,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { useTheme } from '../contexts/ThemeContext';
+
 import { useAuth } from '../contexts/AuthContext'; 
 import { db } from '../services/firebase';
 import { collection, addDoc, getDocs, doc, setDoc, query, where } from 'firebase/firestore';
@@ -53,6 +55,9 @@ export default function AddExpense() {
   const navigation = useNavigation<NavigationProps>();
   const { user } = useAuth();
   
+  const { temaEscuro } = useTheme();
+  const styles = getStyles(temaEscuro);
+
   const [isLoading, setIsLoading] = useState(false);
   const [showCategoriasModal, setShowCategoriasModal] = useState(false);
   const [mostrarInputNovaCategoria, setMostrarInputNovaCategoria] = useState(false);
@@ -393,7 +398,7 @@ export default function AddExpense() {
           <Text style={styles.label}>Nome da despesa</Text>
           
           <TextInput style={[ styles.input, errors.nome ? styles.inputError : null ]} placeholder="Ex: Mercado, Gás, Transporte..." placeholderTextColor=
-          "#8581FF" value={formData.nome} onChangeText={(text) => handleChange('nome', text)} onBlur={() => validateField('nome', formData.nome)}
+          {temaEscuro ? '#dadafa' : '#8581FF'} value={formData.nome} onChangeText={(text) => handleChange('nome', text)} onBlur={() => validateField('nome', formData.nome)}
           maxLength={50} />
 
           {errors.nome ? (
@@ -499,7 +504,7 @@ export default function AddExpense() {
                   
                   <View style={styles.novaCategoriaInputRow}>
                     
-                    <TextInput style={styles.novaCategoriaInput} placeholder="Ex: Pets, Assinaturas, Presentes..." placeholderTextColor="#8581FF"
+                    <TextInput style={styles.novaCategoriaInput} placeholder="Ex: Pets, Assinaturas, Presentes..." placeholderTextColor={temaEscuro ? '#dadafa' : '#8581FF'}
                     value={novaCategoriaNome} onChangeText={setNovaCategoriaNome} autoFocus maxLength={30} />
                     
                     <TouchableOpacity style={styles.novaCategoriaConfirmButton} onPress={criarNovaCategoria}>
@@ -559,7 +564,7 @@ export default function AddExpense() {
             
             <Text style={styles.currencySymbol}>R$</Text>
             
-            <TextInput style={[styles.input, styles.inputWithLeftPadding]} placeholder="0,00" placeholderTextColor="#8581FF" value={formData.
+            <TextInput style={[styles.input, styles.inputWithLeftPadding]} placeholder="0,00" placeholderTextColor={temaEscuro ? '#dadafa' : '#8581FF'} value={formData.
             valorPrevisto} onChangeText={(text) => { const formatado = formatarParaDinheiro(text); handleChange('valorPrevisto', formatado); }}
             onBlur={() => validateField('valorPrevisto', formData.valorPrevisto)} keyboardType="numeric" returnKeyType="done" />
 
@@ -617,7 +622,7 @@ export default function AddExpense() {
             
             <Text style={styles.currencySymbol}>R$</Text>
             
-            <TextInput style={[styles.input, styles.inputWithLeftPadding]} placeholder="0,00" placeholderTextColor="#8581FF" value={formData.
+            <TextInput style={[styles.input, styles.inputWithLeftPadding]} placeholder="0,00" placeholderTextColor={temaEscuro ? '#dadafa' : '#8581FF'} value={formData.
             valorReal} onChangeText={(text) => { const formatado = formatarParaDinheiro(text); handleChange('valorReal', formatado); }} onBlur={
             () => validateField('valorReal', formData.valorReal)} keyboardType="numeric" returnKeyType="done" />
 
@@ -671,11 +676,11 @@ export default function AddExpense() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (temaEscuro: boolean) => StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#dadafa',
+    backgroundColor: temaEscuro ? '#000824' : '#dadafa',
   },
 
   header: {
@@ -721,19 +726,19 @@ const styles = StyleSheet.create({
 
   label: {
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     marginBottom: 8,
     fontFamily: 'Cabin_700Bold'
   },
 
   input: {
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#00124d' : '#FFF',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     borderWidth: 1,
-    borderColor: '#aab3ff',
+    borderColor: temaEscuro ? '#001f85' : '#aab3ff',
     fontFamily: 'Inter_400Regular'
   },
 
@@ -783,25 +788,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#0f248d' : '#FFF',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#aab3ff',
+    borderColor: temaEscuro ? '#001f85' : '#aab3ff',
   },
 
   categoriaButtonText: {
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
   },
 
   categoriaButtonTextPlaceholder: {
-    color: '#8581FF',
+    color: temaEscuro ? '#dadafa' : '#8581FF',
   },
 
   categoriaButtonIcon: {
     fontSize: 14,
-    color: '#8581FF',
+    color: temaEscuro ? '#dadafa' : '#8581FF',
   },
 
   modalOverlay: {
@@ -811,7 +816,7 @@ const styles = StyleSheet.create({
   },
 
   modalContent: {
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#0f248d' : '#FFF',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '80%',
@@ -823,13 +828,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#aab3ff',
+    borderBottomColor: temaEscuro ? '#0016d1' : '#aab3ff',
   },
 
   modalTitle: {
     fontSize: 20,
     fontFamily: 'Alatsi_400Regular',
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
   },
 
   modalCloseButton: {
@@ -838,7 +843,7 @@ const styles = StyleSheet.create({
 
   modalCloseText: {
     fontSize: 20,
-    color: '#666',
+    color: temaEscuro ? '#dadafa' : '#666',
   },
 
   categoriaList: {
@@ -853,40 +858,40 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 5,
     borderWidth: 1,
-    borderColor: '#aab3ff',
+    borderColor: temaEscuro ? '#0016d1' : '#aab3ff',
   },
 
   categoriaItemSelected: {
-    backgroundColor: '#F0EFFF',
-    borderColor: '#0f248d',
+    backgroundColor: temaEscuro ? '#00124d' : '#F0EFFF',
+    borderColor: temaEscuro ? '#001f85' : '#0f48d',
   },
 
   categoriaItemText: {
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     fontFamily: 'Cabin_400Regular'
   },
 
   categoriaItemCheck: {
     fontSize: 16,
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     fontWeight: 'bold',
   },
 
   novaCategoriaButton: {
-    backgroundColor: '#F0EFFF',
+    backgroundColor: temaEscuro ? '#00124d' : '#F0EFFF',
     marginHorizontal: 20,
     marginVertical: 15,
     padding: 15,
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#0f248d',
+    borderColor: temaEscuro ? '#0016d1' : '#0f248d',
     borderStyle: 'dashed',
   },
 
   novaCategoriaButtonText: {
-    color: '#0f248d',
+    color:  temaEscuro ? '#dadafa' : '#0f248d',
     fontSize: 18,
     fontFamily: 'Alatsi_400Regular'
   },
@@ -894,13 +899,13 @@ const styles = StyleSheet.create({
   novaCategoriaInputContainer: {
     paddingHorizontal: 20,
     paddingVertical: 15,
-    backgroundColor: '#F8F8FF',
+    backgroundColor: temaEscuro ? '#0f248d' : '#F8F8FF',
     marginBottom: 10,
   },
 
   novaCategoriaLabel: {
     fontSize: 16,
-    color: '#666',
+    color: temaEscuro ? '#dadafa' : '#666',
     marginBottom: 8,
     fontFamily: 'Cabin_700Bold'
   },
@@ -912,19 +917,19 @@ const styles = StyleSheet.create({
 
   novaCategoriaInput: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#00124d' : '#FFF',
     borderRadius: 10,
     padding: 12,
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     borderWidth: 1,
-    borderColor: '#E0E0FF',
+    borderColor: temaEscuro ? '#0016d1' : '#E0E0FF',
     marginRight: 10,
     fontFamily: 'Inter_400Regular'
   },
 
   novaCategoriaConfirmButton: {
-    backgroundColor: '#0f248d',
+    backgroundColor: temaEscuro ? '#00124d' : '#0f248d',
     width: 40,
     height: 40,
     borderRadius: 10,
@@ -969,7 +974,7 @@ const styles = StyleSheet.create({
 
   separatorText: {
     fontSize: 14,
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     marginHorizontal: 10,
     fontFamily: 'Cabin_700Bold'
   },
@@ -977,42 +982,42 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontFamily: 'Alatsi_400Regular',
-    color: '#0f248d',
+    color: temaEscuro ? '#FFF' : '#0f248d',
     marginTop: 10,
     marginBottom: 20,
   },
 
   dateButton: {
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#00124d' : '#FFF',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#aab3ff',
+    borderColor: temaEscuro ? '#0016d1' : '#aab3ff',
   },
 
   dateButtonText: {
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     fontFamily: 'Inter_400Regular'
   },
 
   dateButtonTextPlaceholder: {
-    color: '#8581FF',
+    color: temaEscuro ? '#dadafa' : '#8581FF',
   },
 
   inputWithCurrency: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor:temaEscuro ? '#00124d' : '#FFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#aab3ff',
+    borderColor:temaEscuro ? '#0016d1' : '#aab3ff',
   },
 
   currencySymbol: {
     paddingLeft: 16,
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     fontFamily: 'Cabin_700Bold'
   },
 

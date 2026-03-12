@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, ScrollView, Alert, Modal, FlatList, RefreshControl} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, ScrollView, Alert, Modal, FlatList, RefreshControl, Image} from 'react-native';
 
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { useTheme } from '../contexts/ThemeContext';
 
 import { useAuth } from '../contexts/AuthContext'; 
 import { db } from '../services/firebase';
@@ -47,6 +49,9 @@ export default function Categories() {
   const navigation = useNavigation<NavigationProps>();
   const { user } = useAuth();
   const isFocused = useIsFocused();
+
+  const { temaEscuro } = useTheme();
+  const styles = getStyles(temaEscuro);
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -256,7 +261,7 @@ export default function Categories() {
       {item.personalizada && (
         
         <TouchableOpacity style={styles.excluirButton} onPress={() => { setCategoriaParaExcluir(item); setShowDeleteModal(true); }}>
-          <Text style={styles.excluirButtonText}>🗑️</Text>
+          <Image style={styles.botaoExcluirIcon} source={require('../../assets/excluir.png')}/>
         </TouchableOpacity>
 
       )}
@@ -391,7 +396,7 @@ export default function Categories() {
               
               <Text style={styles.modalLabel}>Nome da categoria</Text>
               
-              <TextInput style={styles.modalInput} placeholder="Ex: Pets, Assinaturas, Presentes..." placeholderTextColor="#8581FF" value=
+              <TextInput style={styles.modalInput} placeholder="Ex: Pets, Assinaturas, Presentes..." placeholderTextColor={temaEscuro ? '#dadafa' : '#8581FF'} value=
               {novaCategoriaNome} onChangeText={setNovaCategoriaNome} autoFocus maxLength={30} />
 
               <Text style={styles.modalLabel}>Tipo</Text>
@@ -463,24 +468,24 @@ export default function Categories() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (temaEscuro: boolean) => StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#dadafa',
+    backgroundColor: temaEscuro ? '#000824' : '#dadafa',
   },
 
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#dadafa',
+    backgroundColor: temaEscuro ? '#000824' : '#dadafa',
   },
 
   loadingText: {
     marginTop: 20,
     fontSize: 16,
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
   },
 
   header: {
@@ -542,12 +547,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontFamily: 'Alatsi_400Regular',
-    color: '#0f248d',
+    color: temaEscuro ? '#FFF' : '#0f248d',
   },
   
   sectionSubtitle: {
     fontSize: 15,
-    color: '#666',
+    color: temaEscuro ? '#dadafa' : '#666',
     marginBottom: 15,
     fontFamily: 'Cabin_400Regular'
   },
@@ -572,7 +577,7 @@ const styles = StyleSheet.create({
   },
 
   categoriaCard: {
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#a4b9fe' : '#FFF',
     padding: 15,
     borderRadius: 30,
     borderWidth: 1,
@@ -614,7 +619,7 @@ const styles = StyleSheet.create({
 
   categoriaPersonalizada: {
     borderColor: '#4D48C8',
-    backgroundColor: '#F8F8FF',
+    backgroundColor: temaEscuro ? '#a4b9fe' : '#F8F8FF',
   },
 
   categoriaInfo: {
@@ -652,9 +657,9 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 
-  excluirButtonText: {
-    fontSize: 20,
-    color: '#FF6B6B',
+  botaoExcluirIcon: {
+    width: 22,
+    height: 22
   },
  
   modalOverlay: {
@@ -665,7 +670,7 @@ const styles = StyleSheet.create({
   },
 
   modalContent: {
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#0f248d' : '#FFF',
     borderRadius: 20,
     width: '90%',
     maxWidth: 400,
@@ -678,13 +683,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0FF',
+    borderBottomColor: temaEscuro ? '#1531c2' : '#E0E0FF',
   },
 
   modalTitle: {
     fontSize: 20,
     fontFamily: 'Alatsi_400Regular',
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
   },
 
   modalCloseButton: {
@@ -693,7 +698,7 @@ const styles = StyleSheet.create({
 
   modalCloseText: {
     fontSize: 20,
-    color: '#666',
+    color: temaEscuro ? '#dadafa' : '#666',
   },
 
   modalBody: {
@@ -702,19 +707,19 @@ const styles = StyleSheet.create({
 
   modalLabel: {
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     marginBottom: 8,
     fontFamily: 'Cabin_700Bold'
   },
 
   modalInput: {
-    backgroundColor: '#F5F5FF',
+    backgroundColor: temaEscuro ? '#00124d' : '#F5F5FF',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     borderWidth: 1,
-    borderColor: '#E0E0FF',
+    borderColor: temaEscuro ? '#001f85' : '#E0E0FF',
     marginBottom: 20,
     fontFamily: 'Inter_400Regular'
   },
@@ -726,7 +731,7 @@ const styles = StyleSheet.create({
 
   tipoButton: {
     flex: 1,
-    backgroundColor: '#dadafa',
+    backgroundColor: temaEscuro ? '#FFF' : '#dadafa',
     borderRadius: 12,
     padding: 15,
     alignItems: 'center',
@@ -735,7 +740,7 @@ const styles = StyleSheet.create({
   },
 
   tipoButtonActive: {
-    backgroundColor: '#0f248d',
+    backgroundColor: temaEscuro ? '#6689ff' : '#0f248d',
     borderColor: '#0f248d',
   },
 
@@ -753,12 +758,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0FF',
+    borderTopColor: temaEscuro ? '#1531c2' : '#E0E0FF',
   },
   
   modalCancelButton: {
     flex: 1,
-    backgroundColor: '#dadafa',
+    backgroundColor: temaEscuro ? '#000824' : '#dadafa',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -766,21 +771,23 @@ const styles = StyleSheet.create({
   },
 
   modalCancelText: {
-    color: '#666',
+    color: temaEscuro ? '#dadafa' : '#666',
     fontSize: 16,
     fontFamily: 'Cabin_700Bold'
   },
 
   modalConfirmButton: {
     flex: 1,
-    backgroundColor: '#0f248d',
+    backgroundColor: temaEscuro ? '#001b75' : '#0f248d',
+    borderColor: temaEscuro ? '#0028ad' : '', 
+    borderWidth: temaEscuro ? 1 : 0,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
 
   modalConfirmButtonDisabled: {
-    backgroundColor: '#8c9ae4',
+    backgroundColor: temaEscuro ? '#000b2e' : '#8c9ae4',
   },
 
   modalConfirmText: {
@@ -797,7 +804,7 @@ const styles = StyleSheet.create({
   },
 
   deleteModalContent: {
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#00155c' : '#FFF',
     borderRadius: 20,
     padding: 25,
     width: '85%',
@@ -814,7 +821,7 @@ const styles = StyleSheet.create({
 
   deleteModalText: {
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     textAlign: 'center',
     marginBottom: 5,
     fontFamily: 'Cabin_400Regular'
@@ -823,7 +830,7 @@ const styles = StyleSheet.create({
   deleteModalCategoriaNome: {
     fontSize: 20,
     fontFamily: 'Cabin_700Bold',
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -844,28 +851,28 @@ const styles = StyleSheet.create({
 
   deleteModalCancelButton: {
     flex: 1,
-    backgroundColor: '#dadafa',
+    backgroundColor: temaEscuro ? '#000c33' : '#dadafa',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
 
   deleteModalCancelText: {
-    color: '#666',
+    color: temaEscuro ? '#dadafa' : '#666',
     fontSize: 18,
     fontFamily: 'Cabin_700Bold'
   },
   
   deleteModalConfirmButton: {
     flex: 1,
-    backgroundColor: '#F44336',
+    backgroundColor: temaEscuro ? '#740618' : '#F44336',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
 
   deleteModalConfirmText: {
-    color: '#FFF',
+    color: temaEscuro ? '#fee7ea' : '#FFF',
     fontSize: 18,
     fontFamily: 'Cabin_700Bold'
   },

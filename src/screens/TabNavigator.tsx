@@ -7,15 +7,20 @@ import Transactions from './Transactions';
 import Goals from './Goals';
 import Settings from './Settings';
 
+import { useTheme } from '../contexts/ThemeContext';
+
 const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {
+
+  const { temaEscuro } = useTheme();
   
     return (
     
-    <Tab.Navigator screenOptions={{ headerShown: false, tabBarStyle: { backgroundColor: '#dadafa', borderTopColor: '#676565', borderTopWidth: 1,
-    height: 60, paddingBottom: 5, }, tabBarActiveTintColor: '#0f248d', tabBarInactiveTintColor: '#8581FF', tabBarShowLabel: true, tabBarLabelStyle: {
-    fontSize: 10, fontWeight: '500', }, }}>
+    <Tab.Navigator screenOptions={{ headerShown: false, tabBarStyle: { backgroundColor: temaEscuro ? '#000824' : '#dadafa',
+    borderTopColor: temaEscuro ? '#dadafa' : '#676565', borderTopWidth: 1, height: 60, paddingBottom: 5, }, tabBarActiveTintColor:
+    temaEscuro ? '#8aa4ff' : '#0f248d', tabBarInactiveTintColor: temaEscuro ? '#dadafa' : '#8581FF', tabBarShowLabel: true,
+    tabBarLabelStyle: { fontSize: 10, fontWeight: '500', }, }}>
       
       <Tab.Screen name="HomeTab" component={Home} options={{ tabBarLabel: 'Resumo', tabBarIcon: () => (
         <Image style={styles.menuIcon} source={require('../../assets/home.png')}/>

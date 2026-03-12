@@ -6,6 +6,8 @@ import { ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlis
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useAuth } from '../contexts/AuthContext'; 
+import { useTheme } from '../contexts/ThemeContext';
+
 import { db } from '../services/firebase';
 import { collection, doc, getDocs, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 
@@ -30,6 +32,9 @@ export default function Goals() {
   const [novaMetaValor, setNovaMetaValor] = useState('');
   const [salvando, setSalvando] = useState(false);
 
+  const { temaEscuro } = useTheme();
+  const styles = getStyles(temaEscuro);
+  
   const [showEditModal, setShowEditModal] = useState(false);
   const [metaParaEditar, setMetaParaEditar] = useState<Meta | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -55,12 +60,26 @@ export default function Goals() {
       const metasRef = collection(db, 'users', user.uid, 'metas');
       const snapshot = await getDocs(metasRef);
 
-      let metasCarregadas = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        criadoEm: doc.data().criadoEm?.toDate?.() || new Date(),
-        ordem: doc.data().ordem || 0,
-      })) as Meta[];
+      let metasCarregadas = snapshot.docs.map(doc => {
+
+        const data = doc.data();
+        const criadoEm = data.criadoEm?.toDate?.() || new Date();
+
+        let dataConclusao = null;
+        
+        if (data.dataConclusao) {
+          dataConclusao = data.dataConclusao?.toDate?.() || new Date(data.dataConclusao);
+        }
+
+        return {
+          id: doc.id,
+          ...data,
+          criadoEm,
+          dataConclusao,
+          ordem: data.ordem || 0,
+        } as Meta;
+
+      });  
 
       metasCarregadas.sort((a, b) => {
 
@@ -368,7 +387,7 @@ export default function Goals() {
           
           <Text style={styles.inputLabel}>Título da meta</Text>
     
-          <TextInput style={styles.input} placeholder="Ex: Juntar 10 mil reais" placeholderTextColor="#8581FF" value={novaMetaTitulo}
+          <TextInput style={styles.input} placeholder="Ex: Juntar 10 mil reais" placeholderTextColor={temaEscuro ? '#dadafa' : '#8581FF'} value={novaMetaTitulo}
           onChangeText={setNovaMetaTitulo} autoFocus />
 
           <Text style={styles.inputLabel}> Valor (opcional)</Text>
@@ -377,7 +396,7 @@ export default function Goals() {
       
             <Text style={styles.inputValorSimbolo}>R$</Text>
      
-            <TextInput style={styles.inputValor} placeholder="0,00" placeholderTextColor="#8581FF" value={novaMetaValor} onChangeText={(
+            <TextInput style={styles.inputValor} placeholder="0,00" placeholderTextColor={temaEscuro ? '#dadafa' : '#8581FF'} value={novaMetaValor} onChangeText={(
             text) => setNovaMetaValor(formatarParaDinheiro(text))} keyboardType="numeric" />
 
           </View>
@@ -442,14 +461,14 @@ export default function Goals() {
 
                 <Text style={styles.modalLabel}> Título </Text>
         
-                <TextInput style={styles.modalInput} placeholder='Ex: juntar 10 mil reais' placeholderTextColor='#8581FF' value=
+                <TextInput style={styles.modalInput} placeholder='Ex: juntar 10 mil reais' placeholderTextColor={temaEscuro ? '#dadafa' : '#8581FF'} value=
                 {editForm.titulo} onChangeText={(text) => setEditForm(prev => ({ ...prev, titulo: text }))} />
                   
                 <Text style={styles.modalLabel}> Valor (opcional) </Text>
 
                 <View style={styles.modalValorContainer}>             
                   <Text style={styles.modalValorSimbolo}> R$ </Text>
-                  <TextInput style={styles.modalValorInput} placeholder='0,00' placeholderTextColor='#8581FF' value={editForm.valor}
+                  <TextInput style={styles.modalValorInput} placeholder='0,00' placeholderTextColor={temaEscuro ? '#dadafa' : '#8581FF'} value={editForm.valor}
                   onChangeText={(text) => setEditForm(prev => ({ ...prev, valor: formatarParaDinheiro(text) }))} keyboardType='numeric' />       
                 </View>
                   
@@ -525,16 +544,16 @@ export default function Goals() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (temaEscuro: boolean) => StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#dadafa',
+    backgroundColor: temaEscuro ? '#000824' : '#dadafa',
   },
 
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#dadafa',
+    backgroundColor: temaEscuro ? '#000824' : '#dadafa',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -542,7 +561,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     fontFamily: 'Inter_400Regular',
   },
 
@@ -555,13 +574,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontFamily: 'Alatsi_400Regular',
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     marginBottom: 5,
   },
 
   subtitle: {
     fontSize: 16,
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     fontFamily: 'Cabin_400Regular',
   },
 
@@ -589,7 +608,7 @@ const styles = StyleSheet.create({
   },
 
   inputContainer: {
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#00124d' : '#FFF',
     marginHorizontal: 20,
     marginBottom: 20,
     padding: 20,
@@ -598,17 +617,17 @@ const styles = StyleSheet.create({
 
   inputLabel: {
     fontSize: 14,
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     marginBottom: 8,
     fontFamily: 'Cabin_700Bold',
   },
 
   input: {
-    backgroundColor: '#F8F8FF',
+    backgroundColor: temaEscuro ? '#000824' : '#F8F8FF',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     borderWidth: 1,
     borderColor: '#aab3ff',
     marginBottom: 15,
@@ -618,7 +637,7 @@ const styles = StyleSheet.create({
   inputValorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F8FF',
+    backgroundColor: temaEscuro ? '#000824' : '#F8F8FF',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#aab3ff',
@@ -628,7 +647,7 @@ const styles = StyleSheet.create({
   inputValorSimbolo: {
     paddingLeft: 12,
     fontSize: 16,
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     fontFamily: 'Cabin_700Bold',
   },
 
@@ -636,7 +655,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 12,
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     fontFamily: 'Alatsi_400Regular',
   },
 
@@ -647,17 +666,17 @@ const styles = StyleSheet.create({
 
   botaoCancelar: {
     flex: 1,
-    backgroundColor: '#F8F8FF',
+    backgroundColor: temaEscuro ? '#000824' : '#F8F8FF',
     borderRadius: 8,
     padding: 12,
     alignItems: 'center',
     marginRight: 10,
     borderWidth: 1,
-    borderColor: '#F44336',
+    borderColor: temaEscuro ? '#001b7a' : '#F44336',
   },
 
   botaoCancelarText: {
-    color: '#F44336',
+    color: temaEscuro ? '#dadafa' : '#F44336',
     fontSize: 16,
     fontFamily: 'Cabin_700Bold',
   },
@@ -694,13 +713,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontFamily: 'Cabin_700Bold',
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     marginBottom: 8,
   },
 
   emptyText: {
     fontSize: 14,
-    color: '#666',
+    color: temaEscuro ? '#dadafa' : '#666',
     textAlign: 'center',
     fontFamily: 'Inter_400Regular',
   },
@@ -708,7 +727,7 @@ const styles = StyleSheet.create({
   metaItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#a4b9fe' : '#FFF',
     borderRadius: 12,
     padding: 15,
     marginBottom: 10,
@@ -720,8 +739,8 @@ const styles = StyleSheet.create({
   },
 
   metaItemConcluida: {
-    opacity: 0.8,
-    backgroundColor: '#F8F8FF',
+    opacity: temaEscuro ? 0.3 : 0.8,
+    backgroundColor: temaEscuro ? '#f0f0ff' : '#F8F8FF',
   },
 
   metaCheckbox: {
@@ -761,22 +780,22 @@ const styles = StyleSheet.create({
 
   metaTituloConcluida: {
     textDecorationLine: 'line-through',
-    color: '#999',
+    color: temaEscuro ? '#636363' : '#999',
   },
 
   metaValor: {
     fontSize: 14,
-    color: '#00d2a8',
+    color: temaEscuro ? '#007059' : '#00d2a8',
     fontFamily: 'Alatsi_400Regular',
   },
 
   metaValorConcluida: {
-    color: '#999',
+    color: temaEscuro ? '#636363' : '#999',
   },
 
   metaData: {
     fontSize: 12,
-    color: '#666',
+    color: temaEscuro ? '#636363' : '#666',
     marginTop: 4,
     fontFamily: 'Inter_400Regular',
   },
@@ -822,7 +841,7 @@ const styles = StyleSheet.create({
   },
 
   modalContentEdit: {
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#00155c' : '#FFF',
     borderRadius: 20,
     padding: 0,
     width: '90%',
@@ -834,7 +853,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#0f248d',
+    backgroundColor: temaEscuro ? '#000c33' : '#0f248d',
     padding: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -843,12 +862,12 @@ const styles = StyleSheet.create({
   modalTitleEdit: {
     fontSize: 20,
     fontFamily: 'Alatsi_400Regular',
-    color: '#FFF',
+    color: temaEscuro ? '#dadafa' : '#FFF',
   },
   
   modalCloseText: {
     fontSize: 24,
-    color: '#FFF',
+    color: temaEscuro ? '#dadafa' : '#FFF',
   },
   
   modalBody: {
@@ -857,19 +876,19 @@ const styles = StyleSheet.create({
   
   modalLabel: {
     fontSize: 16,
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     marginBottom: 8,
     fontFamily: 'Cabin_700Bold',
   },
   
   modalInput: {
-    backgroundColor: '#F8F8FF',
+    backgroundColor: temaEscuro ? '#00124d' : '#F8F8FF',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     borderWidth: 1,
-    borderColor: '#aab3ff',
+    borderColor: temaEscuro ? '#2e44ff' : '#aab3ff',
     marginBottom: 15,
     fontFamily: 'Inter_400Regular',
   },
@@ -877,17 +896,17 @@ const styles = StyleSheet.create({
   modalValorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F8FF',
+    backgroundColor: temaEscuro ? '#00124d' : '#F8F8FF',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#aab3ff',
+    borderColor: temaEscuro ? '#2e44ff' : '#aab3ff',
     marginBottom: 25,
   },
   
   modalValorSimbolo: {
     paddingLeft: 12,
     fontSize: 16,
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     fontFamily: 'Cabin_700Bold',
   },
   
@@ -895,7 +914,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 12,
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     fontFamily: 'Alatsi_400Regular',
   },
   
@@ -919,7 +938,7 @@ const styles = StyleSheet.create({
   },
 
   modalContent: {
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#00155c' : '#FFF',
     borderRadius: 20,
     padding: 25,
     width: '85%',
@@ -935,7 +954,7 @@ const styles = StyleSheet.create({
 
   modalText: {
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     textAlign: 'center',
     marginBottom: 5,
     fontFamily: 'Inter_400Regular',
@@ -944,7 +963,7 @@ const styles = StyleSheet.create({
   modalMetaNome: {
     fontSize: 18,
     fontFamily: 'Cabin_700Bold',
-    color: '#0f248d',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     textAlign: 'center',
     marginVertical: 10,
   },
@@ -971,24 +990,24 @@ const styles = StyleSheet.create({
 
   modalCancelButton: {
     flex: 1,
-    backgroundColor: '#dadafa',
+    backgroundColor: temaEscuro ? '#000c33' : '#dadafa',
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
     marginRight: 10,
     borderWidth: 1,
-    borderColor: '#dadaff',
+    borderColor: temaEscuro ? '#001866' : '#dadaff',
   },
 
   modalCancelText: {
-    color: '#666',
+    color: temaEscuro ? '#dadafa' : '#666',
     fontSize: 16,
     fontFamily: 'Cabin_700Bold',
   },
 
   modalConfirmButton: {
     flex: 1,
-    backgroundColor: '#F44336',
+    backgroundColor: temaEscuro ? '#740618' : '#F44336',
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
@@ -996,7 +1015,7 @@ const styles = StyleSheet.create({
   },
 
   modalConfirmText: {
-    color: '#FFF',
+    color: temaEscuro ? '#fee7ea' : '#FFF',
     fontSize: 16,
     fontFamily: 'Cabin_700Bold',
   },
@@ -1018,7 +1037,7 @@ const styles = StyleSheet.create({
 
   dragIcon: {
     fontSize: 20,
-    color: '#aab3ff',
+    color: temaEscuro ? '#6b7bff' : '#aab3ff',
     fontWeight: 'bold',
     letterSpacing: -2,
   },
