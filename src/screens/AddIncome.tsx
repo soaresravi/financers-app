@@ -6,6 +6,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { useTheme } from '../contexts/ThemeContext';
+
 import { useAuth } from '../contexts/AuthContext'; 
 import { db } from '../services/firebase';
 import { collection, addDoc} from 'firebase/firestore';
@@ -32,6 +34,9 @@ export default function AddIncome() {
 
   const navigation = useNavigation<NavigationProps>();
   const { user } = useAuth();
+
+  const { temaEscuro } = useTheme();
+  const styles = getStyles(temaEscuro);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -248,7 +253,7 @@ export default function AddIncome() {
         <Text style={styles.label}>Nome da renda</Text>
           
         <TextInput style={[ styles.input, errors.nome ? styles.inputError : null ]} placeholder="Ex: Salário, Freelance..." placeholderTextColor=
-        "#8581FF" value={formData.nome} onChangeText={(text) => handleChange('nome', text)} onBlur={() => validateField('nome', formData.nome)}
+        {temaEscuro ? '#dadafa' : '#8581FF'} value={formData.nome} onChangeText={(text) => handleChange('nome', text)} onBlur={() => validateField('nome', formData.nome)}
         maxLength={50} />
 
         {errors.nome ? (
@@ -317,7 +322,7 @@ export default function AddIncome() {
          
           <Text style={styles.currencySymbol}>R$</Text>
           
-          <TextInput style={[styles.input, styles.inputWithLeftPadding]} placeholder="0,00" placeholderTextColor="#8581FF" value={formData.
+          <TextInput style={[styles.input, styles.inputWithLeftPadding]} placeholder="0,00" placeholderTextColor={temaEscuro ? '#dadafa' : '#8581FF'} value={formData.
           valorPrevisto} onChangeText={(text) => { const formatado = formatarParaDinheiro(text); handleChange('valorPrevisto', formatado); }}
           onBlur={() => validateField('valorPrevisto', formData.valorPrevisto)} keyboardType="numeric" returnKeyType="done" />
 
@@ -379,7 +384,7 @@ export default function AddIncome() {
           
           <Text style={styles.currencySymbol}>R$</Text>
           
-          <TextInput style={[styles.input, styles.inputWithLeftPadding]} placeholder="0,00" placeholderTextColor="#8581FF" value={formData.
+          <TextInput style={[styles.input, styles.inputWithLeftPadding]} placeholder="0,00" placeholderTextColor={temaEscuro ? '#dadafa' : '#8581FF'} value={formData.
           valorReal} onChangeText={(text) => { const formatado = formatarParaDinheiro(text); handleChange('valorReal', formatado); }} onBlur={() =>
           validateField('valorReal', formData.valorReal)} keyboardType="numeric" returnKeyType="done" />
             
@@ -433,11 +438,11 @@ export default function AddIncome() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (temaEscuro: boolean) => StyleSheet.create({
   
   container: {
     flex: 1,
-    backgroundColor: '#dadafa',
+    backgroundColor: temaEscuro ? '#000824' : '#dadafa',
   },
 
   header: {
@@ -483,19 +488,19 @@ const styles = StyleSheet.create({
 
   label: {
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     marginBottom: 8,
     fontFamily: 'Cabin_700Bold'
   },
 
   input: {
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#00124d' : '#FFF',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     borderWidth: 1,
-    borderColor: '#aab3ff',
+    borderColor: temaEscuro ? '#001f85' : '#aab3ff',
     fontFamily: 'Inter_400Regular'
   },
 
@@ -544,42 +549,42 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontFamily: 'Alatsi_400Regular',
-    color: '#0f248d',
+    color: temaEscuro ? '#FFF' : '#0f248d',
     marginTop: 10,
     marginBottom: 20,
   },
 
   dateButton: {
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#00124d' : '#FFF',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#aab3ff',
+    borderColor: temaEscuro ? '#0016d1' : '#aab3ff',
   },
 
   dateButtonText: {
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     fontFamily: 'Inter_400Regular'
   },
 
   dateButtonTextPlaceholder: {
-    color: '#b9c4f7',
+    color: temaEscuro ? '#dadafa' : '#b9c4f7',
   },
 
   inputWithCurrency: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor: temaEscuro ? '#00124d' : '#FFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#aab3ff',
+    borderColor: temaEscuro ? '#0016d1' : '#aab3ff',
   },
 
   currencySymbol: {
     paddingLeft: 16,
     fontSize: 16,
-    color: '#333',
+    color: temaEscuro ? '#dadafa' : '#333',
     fontFamily: 'Cabin_700Bold'
   },
 
@@ -596,7 +601,7 @@ const styles = StyleSheet.create({
 
   clearButtonText: {
     fontSize: 24,
-    color: '#8581FF',
+    color: temaEscuro ? '#dadafa' : '#8581FF',
   },
 
   formErrorContainer: {

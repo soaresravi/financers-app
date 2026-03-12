@@ -9,6 +9,7 @@ import { useFonts as useInter, Inter_400Regular, Inter_700Bold } from '@expo-goo
 import { useFonts as useAlatsi, Alatsi_400Regular } from '@expo-google-fonts/alatsi';
 
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 
 import Login from './src/screens/Login';
 import EsqueciSenha from './src/screens/EsqueciSenha';
@@ -43,12 +44,13 @@ const Stack = createNativeStackNavigator();
 function AppNavigator() { //verifica se esta carregando os dados do usuario
 
   const { user, isLoading: authLoading } = useAuth();
+  const {temaEscuro} = useTheme();
 
   if (authLoading) {
 
     return (
       
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#dadafa' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: temaEscuro ? '#000824' : '#dadafa' }}>
         <ActivityIndicator size="large" color="#0f248d" />
       </View>
 
@@ -98,15 +100,6 @@ export default function App() {
   const [CabinLoaded] = useCabin({ Cabin_400Regular, Cabin_700Bold });
   const [AlatsiLoaded] = useAlatsi({ Alatsi_400Regular})
 
-  function useFonts(fontMap: any) { 
-
-    const [InterLoaded] = useInter({ Inter_400Regular: fontMap.Inter_400Regular, Inter_700Bold: fontMap.Inter_700Bold});
-    const [AlatsiLoaded] = useAlatsi({ Alatsi_400Regular: fontMap.Alatsi_400Regular });
-    const [CabinLoaded] = useCabin({ Cabin_400Regular: fontMap.Cabin_400Regular, Cabin_700Bold: fontMap.Cabin_700Bold});
-
-    return [InterLoaded && AlatsiLoaded && CabinLoaded]; 
-  }
-
   if (!InterLoaded || !CabinLoaded || !AlatsiLoaded) {
 
     return (
@@ -120,16 +113,21 @@ export default function App() {
   }
   
   return (
+  
+  <AuthProvider> 
     
-    <AuthProvider>
-     
+    <ThemeProvider> 
+      
       <StatusBar backgroundColor='#dadafa' barStyle='light-content' />
-     
+      
       <NavigationContainer>
         <AppNavigator />
       </NavigationContainer>
-      
-    </AuthProvider>
+
+    </ThemeProvider>
+
+  </AuthProvider>
+
   );
   
 }
