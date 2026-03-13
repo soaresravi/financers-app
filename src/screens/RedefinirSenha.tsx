@@ -21,7 +21,7 @@ export default function RedefinirSenha() {
   const navigation = useNavigation<NavigationProps>();
   const { user } = useAuth();
 
-  const { temaEscuro, toggleTema } = useTheme();
+  const { temaEscuro } = useTheme();
   const styles = getStyles(temaEscuro);
 
   const [senhaAtual, setSenhaAtual] = useState('');
@@ -344,7 +344,7 @@ const getStyles = (temaEscuro: boolean) => StyleSheet.create({
 
   label: {
     fontSize: 16,
-    color: temaEscuro ? '#dadafa' : '#333',
+    color: temaEscuro ? '#dadafa' : '#0f248d',
     marginBottom: 8,
     fontFamily: 'Cabin_700Bold',
   },

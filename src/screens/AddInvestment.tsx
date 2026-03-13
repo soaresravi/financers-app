@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, ScrollView, Alert, Platform, Modal, FlatList, KeyboardAvoidingView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, ScrollView, Alert, Platform, Modal, FlatList } from 'react-native';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -358,7 +358,7 @@ export default function AddInvestment() {
 
     return (
     
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <View style={styles.container}>
 
       <View style={styles.header}>
         
@@ -412,7 +412,7 @@ export default function AddInvestment() {
           setNovaCategoriaNome('');
         }}>
           
-          <KeyboardAvoidingView style={styles.modalOverlay} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <View style={styles.modalOverlay}>
             
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
@@ -487,7 +487,7 @@ export default function AddInvestment() {
                 </View>
               )}
             </View>
-          </KeyboardAvoidingView>
+          </View>
         </Modal>
 
         <Text style={styles.sectionTitle}>Previsão</Text>
@@ -635,7 +635,7 @@ export default function AddInvestment() {
         <View style={styles.bottomSpacing} />
 
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
     );
 }
 
