@@ -11,6 +11,7 @@ type RootStackParamList = {
   MainTabs: undefined;
   Login: undefined;
   RedefinirSenha: undefined;
+  DadosConta: undefined;
   Settings: undefined;
 };
 
@@ -55,7 +56,7 @@ export default function Settings() {
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
 
-        <TouchableOpacity style={styles.botao}>
+        <TouchableOpacity style={styles.botao} onPress={() => navigation.navigate('DadosConta')}>
           
           <View style={styles.botaoConteudo}>
             <Text style={styles.botaoTexto}>Dados da conta</Text>

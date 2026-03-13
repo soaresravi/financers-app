@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect} from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Animated, Dimensions, Alert, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Animated, Dimensions, Alert, ScrollView, ActivityIndicator, Image } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -10,7 +10,6 @@ import { useTheme } from '../contexts/ThemeContext';
 import { db } from '../services/firebase';
 import { doc, updateDoc, collection, addDoc } from 'firebase/firestore';
 
-import { Keyboard } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -103,41 +102,6 @@ export default function SetupInitial() {
 
   const { temaEscuro } = useTheme();
   const styles = getStyles(temaEscuro);
-
-  useEffect(() => {
-
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
-
-      Animated.timing(keyboardOffset, {
-        toValue: event.endCoordinates.height / 2,
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
-
-      setTimeout(() => {
-        scrollViewRef.current?.scrollTo({ y: 100, animated: true });
-      }, 100);
-        
-      });
-
-      const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-        
-        Animated.timing(keyboardOffset, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: false
-        }).start();
-        
-      });
-
-      return () => {
-        keyboardDidShowListener.remove();
-        keyboardDidHideListener.remove();
-      };
-
-    },
-
-  []);
 
   const formatarParaDinheiro = (text: string): string => {
 
@@ -378,7 +342,7 @@ export default function SetupInitial() {
 
   return (
     
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <View style={styles.container}>
 
       <View style={styles.header}>
         
@@ -489,7 +453,7 @@ export default function SetupInitial() {
         </View>
         
       </Animated.View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 

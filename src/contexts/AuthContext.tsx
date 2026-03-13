@@ -10,6 +10,7 @@ interface AuthContextData {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
+  updateUser: (novosDados: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData); //cria um contexto q centraliza tudo disponivel globalmente
@@ -114,7 +115,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
+  const updateUser = (novosDados: Partial<User>) => {
+    setUser(prev => prev ? { ...prev, ...novosDados }: null);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, signIn, signUp, signOut }}> { children } </AuthContext.Provider>
+    <AuthContext.Provider value={{ user, isLoading, signIn, signUp, signOut, updateUser }}> { children } </AuthContext.Provider>
   );
 };
